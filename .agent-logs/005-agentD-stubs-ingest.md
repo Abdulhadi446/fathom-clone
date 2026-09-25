@@ -78,3 +78,103 @@ succeeds. **Other worktree agents doing the same fix — see report to the lead.
 
 Commit: `04ddc44` "Calendar connect stub: Google/Outlook cards, simulated handshake,
 persisted on demo user" (pushed to `origin/agent-d`).
+
+## 2026-09-25 — slice 2: /ingest
+
+Built:
+- `src/app/api/ingest/parse.ts` — forgiving transcript parser. Recognises
+  `00:03 Priya: …`, `1:02:03 Priya: …`, `[12:04] Priya: …` and bare `Priya: …`;
+  anything else continues the previous speaker (falls back to speaker `Speaker`).
+  Timestamped pastes keep their times; untimed pastes get synthetic times from a
+  ~156 wpm estimate so the player still has a timeline. Skips blanks / `---`
+  separators, caps at 600 segments, rejects empty/garbage/short pastes with clear
+  messages (never a stack trace).
+- `src/app/api/ingest/route.ts` — `POST /api/ingest`: validates (title required,
+  ≤ 60k chars), parses, inserts `Meeting` (`source = "demo"`, `user_id = u_demo_alex`),
+  `TranscriptSegment` rows, then runs **the shared `summarizeMeeting()`** in parallel
+  for `standard` + `exec-brief`, inserts `Summary` rows, merges/dedupes 2–4
+  `ActionItem` rows. Response reports per-template `source` (`llm` | `fallback`) and a
+  `generator` field so the UI can say which ran. All errors are JSON `{error}` with a
+  4xx/5xx status.
+- `src/app/ingest/page.tsx` — header with "Simulated capture / real processing" +
+  "Demo" chips and the explicit stub disclosure; links to `/calendar` as the other path.
+- `src/components/ingest/IngestForm.tsx` — title / date / participants, transcript
+  textarea (placeholder documents every accepted line format), `.txt` upload via
+  `FileReader` (client-side, no server file parsing), **"Try a sample"** one-click
+  fill, live line/char counters, inline error banner, submit spinner with progress copy,
+  and a success panel showing segment count, per-template source badges (llm/fallback),
+  action-item count and "Open meeting →" (`/meetings/<id>` — agent A's route; 404 on my
+  branch until the merge, as expected).
+- `src/components/ingest/sample.ts` — 14-line sample transcript.
+
+### Local verification (dev :3004, explicit `DATABASE_PATH=./data/fathom.db`)
+
+⚠ **Found (foundation bug, flagged to lead):** `.env.local` contains `DATABASE_PATH=`
+(empty). Next.js loads it as `""`, and `src/db/index.ts` uses `??` (not `||`), so the
+dev/build server opens SQLite's **private temporary DB** instead of `data/fathom.db` —
+`/api/meetings` returned `count: 0` locally. `scripts/seed.ts` is unaffected (its
+`loadEnv()` runs after the hoisted `import ../src/db`), and the deploy smoke test passes
+`DATABASE_PATH` explicitly, and the VM gets it from `/etc/fathom/fathom.env` — so only
+local dev is affected. Worked around by exporting `DATABASE_PATH` when starting dev;
+did not edit `.env.local` (lead's file).
+
+- Validation: empty → "Paste a transcript…", `!!! ??? ...` → "no readable text",
+  `hi there` → "too short… (40+ characters)", missing title → "Give the meeting a title."
+- Sample ingest (real LLM, 3.7 s): `{"segmentCount":14,"usedTimestamps":true,
+  "summaries":[{"template":"standard","source":"llm","actionItems":3},
+  {"template":"exec-brief","source":"llm","actionItems":3}],"actionItemCount":4,
+  "generator":"llm"}`.
+- Untimed 3-line paste → `usedTimestamps:false`, synthetic timeline, participants
+  auto-derived from speakers (`["Priya","Marcus"]`).
+- Unlabelled paragraph → 1 segment under speaker `Speaker`, still ingests.
+- DB rows confirmed: Meeting `source=demo`, 14 TranscriptSegments, 2 Summaries
+  (820/896 chars), 4 ActionItems; `/api/meetings` count went 8 → 9, so agent B's
+  dashboard (same DB) will list it.
+- `npx tsc --noEmit` clean, `npm run lint` clean (only agent C's pre-existing
+  `HighlightBar` `_props` warning).
+
+Commit: `5c3f2aa` "Demo-mode ingest: paste/upload transcript, real summarizeMeeting()
+for standard + exec-brief" (pushed).
+
+## 2026-09-25 — deploy 2 + live verification
+
+### Deploy 2 — `rel-20260925-230003-62504`
+
+typecheck → build (`/`, `/ingest`, `/api/ingest`, `/calendar`, `/api/calendar`) →
+local smoke OK → ship → remote health OK → public verify OK. No rollback.
+
+Verified on `http://51.170.90.41`:
+
+| check | result |
+|---|---|
+| `GET /calendar` | **200** — provider cards, Demo chips render |
+| `GET /ingest` | **200** — "Simulated capture / real processing" ×2, "Try a sample", "Accepted line formats" |
+| `GET /api/health` | 200 |
+| `POST /api/calendar` connect/outlook → `GET /calendar` | `{"provider":"outlook","connected":true,…}`, page server-renders "3 upcoming meetings detected (simulated)" |
+| `POST /api/calendar` disconnect | `{"provider":null,"connected":false}` |
+| **real ingest on live** `POST /api/ingest` | `m_demo_muh9pkym6tma`, 5 segments, `standard` + `exec-brief` both `source:"llm"`, 4 action items, 2.5 s |
+| `GET /api/meetings` after ingest | `count` 8 → **9**, new row first, `source:"demo"` → same DB agent B's dashboard reads |
+| `GET /meetings/m_demo_muh9pkym6tma` | **404** — expected: agent A's route is not deployed/merged yet |
+
+Release history on the VM at this point: `221318` (lead, failed) → `221811` (lead, ok)
+→ `224217` (mine, rolled back) → `224830` (mine, calendar) → `230003` (mine, ingest).
+No other agent had deployed before me, so nothing of theirs was reverted.
+
+---
+
+## Handover / open items for the lead
+
+1. **Worktree deploys need a real `node_modules`** — the symlink makes
+   `.next/standalone/node_modules` a dangling absolute symlink on the VM
+   (`Cannot find module 'next'`, auto-rollback). Fix per worktree:
+   `rm node_modules && cp -al /home/abdulhadi/Projects/project/node_modules node_modules`
+   (hard-link copy, no disk cost, not an `npm install`). Applies to agents A/B/C too.
+2. **`.env.local` has an empty `DATABASE_PATH=`** → local `next dev`/`next build` open a
+   private temp SQLite (`/api/meetings` = 0 rows). Suggest changing the line to
+   `DATABASE_PATH=./data/fathom.db` or deleting it (default already points there);
+   `src/db/index.ts` could also use `||` instead of `??`. Deployment is unaffected.
+3. `/meetings/<id>` 404s for ingested meetings until agent A's route ships — the
+   success panel's "Open meeting →" will 404 in the meantime (expected).
+4. `npm run dev` (`--turbopack`) panics on a symlinked `node_modules`
+   ("Symlink node_modules is invalid"); `npx next dev -p 3004` (webpack) works — also
+   fixed by item 1.
