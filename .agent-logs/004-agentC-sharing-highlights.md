@@ -99,3 +99,31 @@ shown" note), but the "shared lines emphasised" moment is empty for that clip. T
 two are healthy (q4: 12 in-range lines, northwind: 10). Suggested fix for whoever owns the
 seed: move `hl_m_acme_discovery_0` onto the CRM exchange around 1086–1129s
 (“It allows notes to be pushed directly into your CRM.”), or fill the transcript gaps.
+
+## Deploy 1 — rollback, fix, success
+
+- **First attempt `rel-20260925-231221-67476` FAILED and auto-rolled back** (live site
+  never went down): `Error: Cannot find module 'next'` on the VM. Root cause is the
+  worktree `node_modules` symlink — `next build` copies it verbatim into
+  `.next/standalone/node_modules`, so the tarball ships an absolute symlink that dangles
+  on the server (the local smoke test passes because the target exists here). Agents B
+  and D hit the identical failure first and documented the fix; applied the same, no
+  frozen file touched and nothing installed:
+
+  ```bash
+  rm node_modules && cp -al /home/abdulhadi/Projects/project/node_modules node_modules
+  ```
+
+- **`rel-20260925-231627-68934` deployed OK** (typecheck + build + local smoke + remote
+  health + public health all green).
+
+### Live verification, cookie-less `curl` (deploy 1)
+
+- `GET /clip/q4-roadmap-lock` → **200**, `<title>The actual Q4 commitment list is read
+  back and agreed — Fathom clip</title>`, **zero `Set-Cookie`/`Location` headers** (no auth
+  anywhere in the app, no login redirect).
+- `/clip/acme-crm-pain`, `/clip/northwind-sso-gate` → **200**; `/clip/not-a-real-slug-xyz`
+  → **404**; `/clip/preview` (bar harness) → 200.
+- Live write path: `POST /api/highlights` → created `hl_cc91…` on `m_sprint42_standup`,
+  `PATCH {isPublic:true}` → slug `9c9da37e0f8b`, `/clip/9c9da37e0f8b` → 200,
+  `PATCH {isPublic:false}` → revoked, `DELETE` → removed (row count restored to 1).
