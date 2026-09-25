@@ -55,7 +55,7 @@ export default async function MeetingDetailPage({ params, searchParams }: PagePr
       label: templateLabel(row.template),
       description: template?.description ?? "Meeting summary.",
       content: row.content,
-      createdAt: row.createdAt.toISOString(),
+      createdAtLabel: row.createdAt.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" }),
     };
   });
 

@@ -8,7 +8,8 @@ export interface TemplateSummary {
   label: string;
   description: string;
   content: string;
-  createdAt: string;
+  /** Preformatted on the server — keeps SSR and hydration text identical. */
+  createdAtLabel: string;
 }
 
 export default function SummaryPanel({ summaries }: { summaries: TemplateSummary[] }) {
@@ -75,9 +76,7 @@ export default function SummaryPanel({ summaries }: { summaries: TemplateSummary
           {current.description}
         </p>
         <Markdown source={current.content} />
-        <p className="mt-4 text-[11px] text-neutral-600">
-          Generated {new Date(current.createdAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}
-        </p>
+        <p className="mt-4 text-[11px] text-neutral-600">Generated {current.createdAtLabel}</p>
       </div>
     </section>
   );
