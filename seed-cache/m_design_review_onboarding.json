@@ -1,0 +1,579 @@
+{
+  "segments": [
+    {
+      "speaker": "Grace Kim",
+      "text": "Thanks everyone for joining today.",
+      "startTime": 0,
+      "endTime": 5
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "I'm excited to walk you through the new onboarding flow.",
+      "startTime": 5,
+      "endTime": 15
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "So, we've condensed our seven screens down to just three.",
+      "startTime": 15,
+      "endTime": 30
+    },
+    {
+      "speaker": "Noah Brennan",
+      "text": "That's a big change.",
+      "startTime": 30,
+      "endTime": 35
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "Right? It really streamlines the user experience.",
+      "startTime": 35,
+      "endTime": 50
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "But what about the gestures? Those might add some complexity.",
+      "startTime": 50,
+      "endTime": 65
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "Yeah, I hear you, Lena. We've considered that.",
+      "startTime": 65,
+      "endTime": 80
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "How do you plan to implement those gestures?",
+      "startTime": 80,
+      "endTime": 90
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "We might need extra time for that.",
+      "startTime": 90,
+      "endTime": 105
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "We can simplify some interactions to keep it manageable.",
+      "startTime": 105,
+      "endTime": 120
+    },
+    {
+      "speaker": "Noah Brennan",
+      "text": "What's the timeline looking like for this?",
+      "startTime": 120,
+      "endTime": 130
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Yeah, I need to know the dates.",
+      "startTime": 130,
+      "endTime": 140
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "I think we can target a launch in about six weeks.",
+      "startTime": 140,
+      "endTime": 155
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "What events are we capturing on signup?",
+      "startTime": 155,
+      "endTime": 170
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "Good question, Ibrahim. We're focusing on a few key metrics.",
+      "startTime": 170,
+      "endTime": 180
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "Like what?",
+      "startTime": 180,
+      "endTime": 195
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "User engagement, drop-off points, and completion rates.",
+      "startTime": 195,
+      "endTime": 210
+    },
+    {
+      "speaker": "Noah Brennan",
+      "text": "That sounds like a solid plan.",
+      "startTime": 210,
+      "endTime": 225
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "I just worry about the implementation effort.",
+      "startTime": 225,
+      "endTime": 240
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "We’ll need to balance effort with user experience.",
+      "startTime": 240,
+      "endTime": 255
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "I agree, but we need to stay on schedule.",
+      "startTime": 255,
+      "endTime": 270
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "And dark-mode support—what's the stance on that?",
+      "startTime": 270,
+      "endTime": 285
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "We’re aiming to include it in the initial launch.",
+      "startTime": 285,
+      "endTime": 300
+    },
+    {
+      "speaker": "Noah Brennan",
+      "text": "That’s good to hear.",
+      "startTime": 300,
+      "endTime": 310
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "So, is the calendar connect step one or optional?",
+      "startTime": 310,
+      "endTime": 325
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "I think step one makes sense.",
+      "startTime": 325,
+      "endTime": 335
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "But it could overwhelm new users.",
+      "startTime": 335,
+      "endTime": 350
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "True, maybe we can make it optional for now.",
+      "startTime": 350,
+      "endTime": 365
+    },
+    {
+      "speaker": "Noah Brennan",
+      "text": "Let’s keep discussing that.",
+      "startTime": 365,
+      "endTime": 375
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "We just want to ensure we track usage effectively.",
+      "startTime": 375,
+      "endTime": 385
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "Absolutely, we need to capture meaningful data.",
+      "startTime": 385,
+      "endTime": 400
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "What about user feedback during the onboarding?",
+      "startTime": 400,
+      "endTime": 415
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "I suggest a quick survey at the end.",
+      "startTime": 415,
+      "endTime": 430
+    },
+    {
+      "speaker": "Noah Brennan",
+      "text": "That could provide valuable insights.",
+      "startTime": 430,
+      "endTime": 445
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "And it won't require too much effort to implement.",
+      "startTime": 445,
+      "endTime": 460
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "We can analyze the results regularly.",
+      "startTime": 460,
+      "endTime": 475
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "Right, it’ll help us iterate on the flow.",
+      "startTime": 475,
+      "endTime": 490
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "And fix any issues that arise.",
+      "startTime": 490,
+      "endTime": 505
+    },
+    {
+      "speaker": "Noah Brennan",
+      "text": "Alright, sounds like we’re on the same page.",
+      "startTime": 505,
+      "endTime": 520
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "Let me know if you have any further thoughts.",
+      "startTime": 520,
+      "endTime": 535
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "I’ll review the gesture implementation details.",
+      "startTime": 535,
+      "endTime": 550
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "And I’ll outline the analytics events.",
+      "startTime": 550,
+      "endTime": 565
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "I’ll coordinate with the team on the dates.",
+      "startTime": 565,
+      "endTime": 580
+    },
+    {
+      "speaker": "Noah Brennan",
+      "text": "Great, let’s reconvene next week to discuss.",
+      "startTime": 580,
+      "endTime": 595
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "Perfect, looking forward to it.",
+      "startTime": 595,
+      "endTime": 610
+    },
+    {
+      "speaker": "Noah Brennan",
+      "text": "Thanks, everyone!",
+      "startTime": 610,
+      "endTime": 625
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "So, diving into the flows now.",
+      "startTime": 750,
+      "endTime": 755
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "Yeah, let's see how it looks.",
+      "startTime": 760,
+      "endTime": 770
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "This first screen really simplifies the user start.",
+      "startTime": 775,
+      "endTime": 800
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "Are we tracking the entry points effectively?",
+      "startTime": 805,
+      "endTime": 820
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Good point, we need to define that.",
+      "startTime": 825,
+      "endTime": 835
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "Absolutely, it’s crucial for our metrics.",
+      "startTime": 840,
+      "endTime": 855
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "What about the gestures on this screen?",
+      "startTime": 860,
+      "endTime": 870
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "Right, we have to keep it intuitive.",
+      "startTime": 875,
+      "endTime": 885
+    },
+    {
+      "speaker": "Noah Brennan",
+      "text": "Can we afford any complexity here?",
+      "startTime": 890,
+      "endTime": 905
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "It might increase the implementation cost.",
+      "startTime": 910,
+      "endTime": 925
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Let’s weigh that against user experience.",
+      "startTime": 930,
+      "endTime": 940
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "The goal is to reduce friction overall.",
+      "startTime": 945,
+      "endTime": 960
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "And we need to capture exit events too.",
+      "startTime": 965,
+      "endTime": 975
+    },
+    {
+      "speaker": "Noah Brennan",
+      "text": "Let’s ensure we cover both entry and exit.",
+      "startTime": 980,
+      "endTime": 995
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "I can add that to our analytics plan.",
+      "startTime": 1000,
+      "endTime": 1010
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "Okay, just make sure it's clear.",
+      "startTime": 1015,
+      "endTime": 1025
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "And the timeline for this implementation?",
+      "startTime": 1030,
+      "endTime": 1040
+    },
+    {
+      "speaker": "Noah Brennan",
+      "text": "Let’s aim for a prototype in three weeks.",
+      "startTime": 1045,
+      "endTime": 1060
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "Will that be enough time for analytics?",
+      "startTime": 1065,
+      "endTime": 1075
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "We can adjust if needed, yeah.",
+      "startTime": 1080,
+      "endTime": 1090
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "I can start on the gestures immediately.",
+      "startTime": 1095,
+      "endTime": 1105
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "That sounds good, let’s get moving.",
+      "startTime": 1110,
+      "endTime": 1120
+    },
+    {
+      "speaker": "Noah Brennan",
+      "text": "And keep communication open, please.",
+      "startTime": 1125,
+      "endTime": 1135
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "Definitely, I’ll set up a channel.",
+      "startTime": 1140,
+      "endTime": 1150
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "Great, and I'll draft the event list.",
+      "startTime": 1155,
+      "endTime": 1165
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "Make sure to align with the flows.",
+      "startTime": 1170,
+      "endTime": 1180
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Yeah, any gaps need to be filled.",
+      "startTime": 1185,
+      "endTime": 1195
+    },
+    {
+      "speaker": "Noah Brennan",
+      "text": "Alright, who’s leading the gesture review?",
+      "startTime": 1200,
+      "endTime": 1210
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "I’ll take that, don’t worry.",
+      "startTime": 1215,
+      "endTime": 1225
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "I trust you’ll find the best approach.",
+      "startTime": 1230,
+      "endTime": 1240
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "Just let me know if you need data.",
+      "startTime": 1245,
+      "endTime": 1255
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "I can help with deadlines too.",
+      "startTime": 1260,
+      "endTime": 1270
+    },
+    {
+      "speaker": "Noah Brennan",
+      "text": "Good, I want everyone aligned.",
+      "startTime": 1275,
+      "endTime": 1285
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "Let’s keep refining together.",
+      "startTime": 1290,
+      "endTime": 1300
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "I’m on board with that.",
+      "startTime": 1305,
+      "endTime": 1315
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "Analytics needs to reflect our goals.",
+      "startTime": 1320,
+      "endTime": 1330
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Yeah, it’s all about improvement.",
+      "startTime": 1335,
+      "endTime": 1345
+    },
+    {
+      "speaker": "Noah Brennan",
+      "text": "Right, let’s focus on a smooth launch.",
+      "startTime": 1350,
+      "endTime": 1360
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "Dark mode support will be a challenge.",
+      "startTime": 1365,
+      "endTime": 1375
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "Can we push that to phase two?",
+      "startTime": 1380,
+      "endTime": 1390
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "That sounds like a reasonable plan.",
+      "startTime": 1395,
+      "endTime": 1405
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "I’ll note that for our roadmap.",
+      "startTime": 1410,
+      "endTime": 1420
+    },
+    {
+      "speaker": "Noah Brennan",
+      "text": "Let’s revisit dark mode after launch.",
+      "startTime": 1425,
+      "endTime": 1440
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "I agree, focus on core functionality first.",
+      "startTime": 1445,
+      "endTime": 1460
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "Perfect, we can iterate later.",
+      "startTime": 1465,
+      "endTime": 1480
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Alright, I’ll keep everyone updated.",
+      "startTime": 1485,
+      "endTime": 1495
+    }
+  ],
+  "summaries": [
+    {
+      "template": "standard",
+      "content": "### Meeting Summary\nThe team reviewed the new mobile onboarding flow, which has been streamlined from seven screens to three. Key discussions included gesture implementation, timeline for launch, and analytics tracking.\n\n### Key discussion points\n- Onboarding flow reduced from seven screens to three for a better user experience.\n- Concerns about gesture complexity and implementation effort were raised.\n- Target launch date set for approximately six weeks from now.\n- Key metrics for signup include user engagement, drop-off points, and completion rates.\n- Dark mode support is planned for future phases after the initial launch.\n\n### Decisions\n- The calendar connect step will be made optional for new users.\n- A quick survey will be implemented at the end of onboarding for user feedback.\n- The team agreed to focus on core functionality first before addressing dark mode.\n\n### Next steps\n- Lena Ortiz will review the gesture implementation details.\n- Ibrahim Diallo will outline the analytics events.\n- Priya Raman will coordinate with the team on the timeline for the launch.",
+      "actionItems": [
+        "Lena Ortiz to review gesture implementation details.",
+        "Ibrahim Diallo to outline analytics events.",
+        "Priya Raman to coordinate with the team on launch dates."
+      ],
+      "source": "llm"
+    },
+    {
+      "template": "exec-brief",
+      "content": "In the recent Design Review for Mobile Onboarding, the team discussed significant changes to the onboarding flow, reducing it from seven screens to three to enhance user experience. Key metrics for user engagement will be tracked, including drop-off points and completion rates. The team is targeting a launch in approximately six weeks, with a focus on balancing implementation efforts and user experience. Dark mode support may be postponed to a later phase to prioritize core functionality.\n\n- **Why it matters**: Streamlining onboarding can improve user engagement and retention.\n- **What changed**: The onboarding flow was condensed from seven screens to three, with dark mode support potentially pushed to phase two.\n- **Ask / decision needed**: Confirm the timeline for the prototype and finalize the gesture implementation details.",
+      "actionItems": [
+        "Lena Ortiz to review gesture implementation details.",
+        "Ibrahim Diallo to outline the analytics events.",
+        "Priya Raman to coordinate with the team on the launch dates."
+      ],
+      "source": "llm"
+    }
+  ],
+  "promptVersion": 2
+}

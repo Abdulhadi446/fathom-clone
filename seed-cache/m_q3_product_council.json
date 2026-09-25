@@ -1,0 +1,1711 @@
+{
+  "segments": [
+    {
+      "speaker": "Dana Whitfield",
+      "text": "Alright, everyone, let’s kick this off. We need to finalize our Q4 roadmap.",
+      "startTime": 0,
+      "endTime": 5
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Yeah, and we need to be realistic about our team’s capacity this quarter.",
+      "startTime": 6,
+      "endTime": 12
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Right, we’ve got some technical debt in the ingest pipeline that needs addressing first.",
+      "startTime": 13,
+      "endTime": 20
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "And if we don’t prioritize transcript performance, we’ll lose users.",
+      "startTime": 21,
+      "endTime": 27
+    },
+    {
+      "speaker": "Sam Whitaker",
+      "text": "Also, storage costs are growing. We should consider that in our planning.",
+      "startTime": 28,
+      "endTime": 34
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "Absolutely, the public clip-sharing could really set us apart.",
+      "startTime": 35,
+      "endTime": 41
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "Yeah, but that’s tied to our search quality. We can’t compromise there.",
+      "startTime": 42,
+      "endTime": 49
+    },
+    {
+      "speaker": "Tom Okafor",
+      "text": "Speaking of which, the top customer asks are about search and sharing.",
+      "startTime": 50,
+      "endTime": 56
+    },
+    {
+      "speaker": "Dana Whitfield",
+      "text": "Let’s focus on those asks then. What do we want to tackle first?",
+      "startTime": 57,
+      "endTime": 63
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "I’d say we prioritize the transcript search improvements.",
+      "startTime": 64,
+      "endTime": 70
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Yeah, if we delay that, we risk falling behind competitors.",
+      "startTime": 71,
+      "endTime": 78
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "And we need to make sure that’s accessible too.",
+      "startTime": 79,
+      "endTime": 85
+    },
+    {
+      "speaker": "Sam Whitaker",
+      "text": "Storage concerns should also be a part of this discussion, though.",
+      "startTime": 86,
+      "endTime": 92
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "For clip-sharing, we have to figure out the UI flow.",
+      "startTime": 93,
+      "endTime": 99
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "Right, if we improve search, it’ll enhance the sharing experience.",
+      "startTime": 100,
+      "endTime": 106
+    },
+    {
+      "speaker": "Tom Okafor",
+      "text": "Yeah, but we should keep tabs on what’s most requested by clients.",
+      "startTime": 107,
+      "endTime": 113
+    },
+    {
+      "speaker": "Dana Whitfield",
+      "text": "Good point, we want to make sure we close those deals.",
+      "startTime": 114,
+      "endTime": 120
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "What about per-seat pricing changes? Is that still on the table?",
+      "startTime": 121,
+      "endTime": 126
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "That ties back to the overall performance of our product.",
+      "startTime": 127,
+      "endTime": 133
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "Yeah, if we can’t deliver on that, pricing changes won’t matter.",
+      "startTime": 134,
+      "endTime": 140
+    },
+    {
+      "speaker": "Sam Whitaker",
+      "text": "And we need to evaluate how it’ll affect our storage too.",
+      "startTime": 141,
+      "endTime": 146
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "Let’s not forget the importance of user feedback on all this.",
+      "startTime": 147,
+      "endTime": 153
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "Exactly, customer insights should drive our priorities.",
+      "startTime": 154,
+      "endTime": 160
+    },
+    {
+      "speaker": "Tom Okafor",
+      "text": "I can gather more specific feedback from clients for us.",
+      "startTime": 161,
+      "endTime": 167
+    },
+    {
+      "speaker": "Dana Whitfield",
+      "text": "That’d be super helpful. Let’s make a list of action items.",
+      "startTime": 168,
+      "endTime": 174
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Agreed, let’s prioritize transcript search, then clip-sharing.",
+      "startTime": 175,
+      "endTime": 181
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "And we must address the technical debt before we scale.",
+      "startTime": 182,
+      "endTime": 189
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "Accessibility features should come into play right after.",
+      "startTime": 190,
+      "endTime": 195
+    },
+    {
+      "speaker": "Sam Whitaker",
+      "text": "And let’s keep an eye on storage capacity as we move forward.",
+      "startTime": 196,
+      "endTime": 203
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "Sounds like a solid plan. Who’s taking the lead on clip-sharing?",
+      "startTime": 204,
+      "endTime": 210
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "I can help with the search-related aspects for that.",
+      "startTime": 211,
+      "endTime": 218
+    },
+    {
+      "speaker": "Tom Okafor",
+      "text": "Okay, then I’ll focus on gathering more customer input.",
+      "startTime": 219,
+      "endTime": 224
+    },
+    {
+      "speaker": "Dana Whitfield",
+      "text": "Perfect, let’s meet again next week to check on progress.",
+      "startTime": 225,
+      "endTime": 230
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "And we’ll need to review capacity before then.",
+      "startTime": 231,
+      "endTime": 237
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Right, let’s not forget the implications of our decisions.",
+      "startTime": 238,
+      "endTime": 245
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "Definitely, we’ll make sure to keep performance in focus.",
+      "startTime": 246,
+      "endTime": 252
+    },
+    {
+      "speaker": "Sam Whitaker",
+      "text": "Alright, I’ll prepare some storage usage metrics for our next chat.",
+      "startTime": 253,
+      "endTime": 259
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "Great, I’ll sketch out some design ideas for the sharing.",
+      "startTime": 260,
+      "endTime": 266
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "Perfect, let’s wrap this up and get to work.",
+      "startTime": 267,
+      "endTime": 274
+    },
+    {
+      "speaker": "Tom Okafor",
+      "text": "Looking forward to our updates next week.",
+      "startTime": 275,
+      "endTime": 281
+    },
+    {
+      "speaker": "Dana Whitfield",
+      "text": "Thanks, everyone. Let’s make this Q4 count!",
+      "startTime": 282,
+      "endTime": 288
+    },
+    {
+      "speaker": "Tom Okafor",
+      "text": "So, let’s dive into the public clip-sharing experience.",
+      "startTime": 600,
+      "endTime": 605
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "I really think that’s a major selling point for us.",
+      "startTime": 606,
+      "endTime": 613
+    },
+    {
+      "speaker": "Dana Whitfield",
+      "text": "Exactly, clients love how easy it is to share clips.",
+      "startTime": 614,
+      "endTime": 619
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "We should also consider the development effort involved.",
+      "startTime": 620,
+      "endTime": 626
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Yeah, we can't let this impact our timelines too much.",
+      "startTime": 627,
+      "endTime": 637
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "Right, we need to ensure performance isn’t compromised.",
+      "startTime": 638,
+      "endTime": 644
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "And the search quality must stay top-notch.",
+      "startTime": 645,
+      "endTime": 652
+    },
+    {
+      "speaker": "Sam Whitaker",
+      "text": "Speaking of search, how’s the embedding cost looking?",
+      "startTime": 653,
+      "endTime": 660
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "It’s manageable right now, but we’ll need to monitor it.",
+      "startTime": 661,
+      "endTime": 670
+    },
+    {
+      "speaker": "Dana Whitfield",
+      "text": "That’s good to hear, let’s keep it efficient.",
+      "startTime": 671,
+      "endTime": 677
+    },
+    {
+      "speaker": "Tom Okafor",
+      "text": "What about the transcript search quality?",
+      "startTime": 678,
+      "endTime": 683
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "We’ve made improvements, but more user testing is needed.",
+      "startTime": 684,
+      "endTime": 690
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "User feedback will be crucial for this.",
+      "startTime": 691,
+      "endTime": 697
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "Absolutely, we want it to be accessible too.",
+      "startTime": 698,
+      "endTime": 703
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "We’ll have to allocate resources for that.",
+      "startTime": 704,
+      "endTime": 709
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "And don’t forget about the technical debt we’re carrying.",
+      "startTime": 710,
+      "endTime": 717
+    },
+    {
+      "speaker": "Sam Whitaker",
+      "text": "Right, that’s still a concern with our storage growth.",
+      "startTime": 718,
+      "endTime": 726
+    },
+    {
+      "speaker": "Dana Whitfield",
+      "text": "We need to keep costs in check.",
+      "startTime": 727,
+      "endTime": 732
+    },
+    {
+      "speaker": "Tom Okafor",
+      "text": "Do we have any updates on the per-seat pricing changes?",
+      "startTime": 733,
+      "endTime": 738
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "I’m still reviewing the feedback from sales.",
+      "startTime": 739,
+      "endTime": 743
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "It’s important we align that with the clip-sharing feature.",
+      "startTime": 744,
+      "endTime": 749
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "Good point, they’re interconnected.",
+      "startTime": 750,
+      "endTime": 756
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "We want to ensure it all feels seamless.",
+      "startTime": 757,
+      "endTime": 763
+    },
+    {
+      "speaker": "Sam Whitaker",
+      "text": "Agreed, smooth transitions are key.",
+      "startTime": 764,
+      "endTime": 770
+    },
+    {
+      "speaker": "Tom Okafor",
+      "text": "Let’s not overlook the calendar integration either.",
+      "startTime": 771,
+      "endTime": 777
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "We need to finalize the requirements for that.",
+      "startTime": 778,
+      "endTime": 782
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "And the enterprise security asks too.",
+      "startTime": 783,
+      "endTime": 790
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "Right, security is a top priority.",
+      "startTime": 791,
+      "endTime": 797
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "We need to address any concerns proactively.",
+      "startTime": 798,
+      "endTime": 804
+    },
+    {
+      "speaker": "Dana Whitfield",
+      "text": "All these pieces need to fit together.",
+      "startTime": 805,
+      "endTime": 811
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "Let’s make sure we prioritize accordingly.",
+      "startTime": 812,
+      "endTime": 818
+    },
+    {
+      "speaker": "Tom Okafor",
+      "text": "Shall we create a list of priorities?",
+      "startTime": 819,
+      "endTime": 825
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Yes, that’ll help us stay on track.",
+      "startTime": 826,
+      "endTime": 831
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "I can help with the tech implications of each.",
+      "startTime": 832,
+      "endTime": 840
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "Perfect, let’s combine our insights into one.",
+      "startTime": 841,
+      "endTime": 846
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "That way, we can assess feasibility better.",
+      "startTime": 847,
+      "endTime": 853
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "And improve our timelines too.",
+      "startTime": 854,
+      "endTime": 861
+    },
+    {
+      "speaker": "Sam Whitaker",
+      "text": "Let’s aim for a solid plan by next week.",
+      "startTime": 862,
+      "endTime": 867
+    },
+    {
+      "speaker": "Dana Whitfield",
+      "text": "I’m on board with that.",
+      "startTime": 868,
+      "endTime": 873
+    },
+    {
+      "speaker": "Tom Okafor",
+      "text": "Great, I’ll summarize our discussion.",
+      "startTime": 874,
+      "endTime": 879
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Looking forward to the follow-up.",
+      "startTime": 880,
+      "endTime": 884
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Let’s make sure we stay accountable.",
+      "startTime": 885,
+      "endTime": 892
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "Definitely, we’ve got this!",
+      "startTime": 893,
+      "endTime": 898
+    },
+    {
+      "speaker": "Dana Whitfield",
+      "text": "So, we agreed on the sharing experience being crucial.",
+      "startTime": 1202,
+      "endTime": 1206
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "Absolutely, it sets us apart from competitors.",
+      "startTime": 1207,
+      "endTime": 1214
+    },
+    {
+      "speaker": "Tom Okafor",
+      "text": "Customers have been asking for this feature a lot.",
+      "startTime": 1215,
+      "endTime": 1219
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "Yeah, and it ties into our search improvements.",
+      "startTime": 1220,
+      "endTime": 1224
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Right, but let's be cautious with our scope.",
+      "startTime": 1225,
+      "endTime": 1230
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "Performance is key, especially for accessibility.",
+      "startTime": 1231,
+      "endTime": 1238
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "We need to address the technical debt first.",
+      "startTime": 1239,
+      "endTime": 1244
+    },
+    {
+      "speaker": "Sam Whitaker",
+      "text": "Storage costs are also a big concern.",
+      "startTime": 1245,
+      "endTime": 1249
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "We can optimize storage without sacrificing quality.",
+      "startTime": 1250,
+      "endTime": 1255
+    },
+    {
+      "speaker": "Tom Okafor",
+      "text": "Exactly, we need to balance those factors.",
+      "startTime": 1256,
+      "endTime": 1262
+    },
+    {
+      "speaker": "Dana Whitfield",
+      "text": "And let’s not forget about pricing changes.",
+      "startTime": 1263,
+      "endTime": 1268
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Pricing needs to reflect our value proposition.",
+      "startTime": 1269,
+      "endTime": 1273
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Right, but we have to manage expectations.",
+      "startTime": 1274,
+      "endTime": 1279
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "Search quality improvements will help justify that.",
+      "startTime": 1280,
+      "endTime": 1285
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "I can work with the design team on that.",
+      "startTime": 1286,
+      "endTime": 1292
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "Let’s make sure it’s user-friendly too.",
+      "startTime": 1293,
+      "endTime": 1297
+    },
+    {
+      "speaker": "Sam Whitaker",
+      "text": "Cost efficiencies will always be a priority.",
+      "startTime": 1298,
+      "endTime": 1302
+    },
+    {
+      "speaker": "Dana Whitfield",
+      "text": "What about the security asks? Are we set?",
+      "startTime": 1303,
+      "endTime": 1307
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "We’re assessing those, but they’re complex.",
+      "startTime": 1308,
+      "endTime": 1312
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "We need to prioritize based on impact.",
+      "startTime": 1313,
+      "endTime": 1318
+    },
+    {
+      "speaker": "Tom Okafor",
+      "text": "Top customers mentioned security as critical.",
+      "startTime": 1319,
+      "endTime": 1323
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "Their feedback is essential for our roadmap.",
+      "startTime": 1324,
+      "endTime": 1329
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "Agreed, user trust is paramount.",
+      "startTime": 1330,
+      "endTime": 1335
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "Let’s make sure we communicate our plans clearly.",
+      "startTime": 1336,
+      "endTime": 1341
+    },
+    {
+      "speaker": "Sam Whitaker",
+      "text": "We should outline cost implications.",
+      "startTime": 1342,
+      "endTime": 1346
+    },
+    {
+      "speaker": "Dana Whitfield",
+      "text": "And how it benefits our customers.",
+      "startTime": 1347,
+      "endTime": 1351
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "I can draft an outline for the meeting.",
+      "startTime": 1352,
+      "endTime": 1357
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Yeah, and we can tweak it later.",
+      "startTime": 1358,
+      "endTime": 1362
+    },
+    {
+      "speaker": "Tom Okafor",
+      "text": "Let’s include customer use cases.",
+      "startTime": 1363,
+      "endTime": 1367
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "That’ll strengthen our argument.",
+      "startTime": 1368,
+      "endTime": 1371
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "I’ll focus on the UX aspects.",
+      "startTime": 1372,
+      "endTime": 1377
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "Great, that’ll enhance our design proposal.",
+      "startTime": 1378,
+      "endTime": 1382
+    },
+    {
+      "speaker": "Sam Whitaker",
+      "text": "Don’t forget to factor in scalability.",
+      "startTime": 1383,
+      "endTime": 1387
+    },
+    {
+      "speaker": "Dana Whitfield",
+      "text": "Scalability is key for future growth.",
+      "startTime": 1388,
+      "endTime": 1392
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "I’ll keep that in mind during planning.",
+      "startTime": 1393,
+      "endTime": 1397
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "We should finalize our list next week.",
+      "startTime": 1398,
+      "endTime": 1402
+    },
+    {
+      "speaker": "Tom Okafor",
+      "text": "Yeah, let’s keep the momentum going.",
+      "startTime": 1403,
+      "endTime": 1408
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "I’ll prepare the data we discussed.",
+      "startTime": 1409,
+      "endTime": 1413
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "Looking forward to our next steps.",
+      "startTime": 1414,
+      "endTime": 1418
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "Let’s make sure we meet that deadline.",
+      "startTime": 1419,
+      "endTime": 1423
+    },
+    {
+      "speaker": "Sam Whitaker",
+      "text": "We’re all in this together.",
+      "startTime": 1424,
+      "endTime": 1427
+    },
+    {
+      "speaker": "Dana Whitfield",
+      "text": "Right, let’s keep each other accountable.",
+      "startTime": 1428,
+      "endTime": 1431
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Absolutely, I’m counting on everyone.",
+      "startTime": 1432,
+      "endTime": 1436
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Alright, see you all next week.",
+      "startTime": 1437,
+      "endTime": 1441
+    },
+    {
+      "speaker": "Tom Okafor",
+      "text": "Looking forward to it!",
+      "startTime": 1442,
+      "endTime": 1445
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "Same here, good collaboration, everyone.",
+      "startTime": 1446,
+      "endTime": 1450
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "Bye, everyone, take care.",
+      "startTime": 1451,
+      "endTime": 1455
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "See you all soon!",
+      "startTime": 1456,
+      "endTime": 1460
+    },
+    {
+      "speaker": "Sam Whitaker",
+      "text": "Bye!",
+      "startTime": 1461,
+      "endTime": 1465
+    },
+    {
+      "speaker": "Tom Okafor",
+      "text": "So, where do we start today?",
+      "startTime": 1802,
+      "endTime": 1807
+    },
+    {
+      "speaker": "Dana Whitfield",
+      "text": "Let's tackle the clip-sharing experience first.",
+      "startTime": 1808,
+      "endTime": 1813
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "I really think that’s a game changer for us.",
+      "startTime": 1814,
+      "endTime": 1820
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "Yeah, but we have to ensure the search quality's solid.",
+      "startTime": 1821,
+      "endTime": 1826
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "Right, if transcripts aren't good, sharing won't matter.",
+      "startTime": 1827,
+      "endTime": 1831
+    },
+    {
+      "speaker": "Sam Whitaker",
+      "text": "Also, we need to keep storage costs in mind.",
+      "startTime": 1832,
+      "endTime": 1837
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Agreed, our pipeline can’t handle more technical debt.",
+      "startTime": 1838,
+      "endTime": 1844
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Let’s prioritize what we can realistically deliver.",
+      "startTime": 1845,
+      "endTime": 1849
+    },
+    {
+      "speaker": "Tom Okafor",
+      "text": "What do customers want most about sharing?",
+      "startTime": 1850,
+      "endTime": 1855
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "They want simplicity and speed, no doubt.",
+      "startTime": 1856,
+      "endTime": 1861
+    },
+    {
+      "speaker": "Dana Whitfield",
+      "text": "Exactly, a smooth experience can close deals.",
+      "startTime": 1862,
+      "endTime": 1867
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "And we can't afford embedding costs to spike.",
+      "startTime": 1868,
+      "endTime": 1873
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "True, let's keep a tight check on that.",
+      "startTime": 1874,
+      "endTime": 1879
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "I think we could optimize some of the existing code.",
+      "startTime": 1880,
+      "endTime": 1886
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "That sounds great, but we need time for it.",
+      "startTime": 1887,
+      "endTime": 1891
+    },
+    {
+      "speaker": "Sam Whitaker",
+      "text": "Also, keep in mind the on-call load for infra.",
+      "startTime": 1892,
+      "endTime": 1897
+    },
+    {
+      "speaker": "Tom Okafor",
+      "text": "Right, we can't stretch the team too thin.",
+      "startTime": 1898,
+      "endTime": 1902
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "Let’s make sure we’re all aligned on priorities.",
+      "startTime": 1903,
+      "endTime": 1908
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "Yeah, a clear roadmap will help everyone.",
+      "startTime": 1909,
+      "endTime": 1914
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "We should focus on accessibility as well.",
+      "startTime": 1915,
+      "endTime": 1920
+    },
+    {
+      "speaker": "Dana Whitfield",
+      "text": "Absolutely, that can make us stand out.",
+      "startTime": 1921,
+      "endTime": 1926
+    },
+    {
+      "speaker": "Sam Whitaker",
+      "text": "But can we really tackle it this quarter?",
+      "startTime": 1927,
+      "endTime": 1932
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "We’ll need to see what’s feasible within capacity.",
+      "startTime": 1933,
+      "endTime": 1938
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "I think we should limit the scope to essentials.",
+      "startTime": 1939,
+      "endTime": 1945
+    },
+    {
+      "speaker": "Tom Okafor",
+      "text": "That’s wise, we don’t want to overpromise.",
+      "startTime": 1946,
+      "endTime": 1951
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "Let's keep the customer feedback loop active.",
+      "startTime": 1952,
+      "endTime": 1957
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "Yeah, more insights will guide our decisions.",
+      "startTime": 1958,
+      "endTime": 1962
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "I’ll make sure the team’s focused on that.",
+      "startTime": 1963,
+      "endTime": 1968
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Good, we need continuous improvement.",
+      "startTime": 1969,
+      "endTime": 1974
+    },
+    {
+      "speaker": "Sam Whitaker",
+      "text": "Also, let’s consider the feedback from last month.",
+      "startTime": 1975,
+      "endTime": 1980
+    },
+    {
+      "speaker": "Dana Whitfield",
+      "text": "Customers were really vocal about their needs.",
+      "startTime": 1981,
+      "endTime": 1986
+    },
+    {
+      "speaker": "Tom Okafor",
+      "text": "It’s crucial we address those pain points.",
+      "startTime": 1987,
+      "endTime": 1992
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Does anyone have specific feedback to highlight?",
+      "startTime": 1993,
+      "endTime": 1998
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "Yeah, some mentioned slow search times.",
+      "startTime": 1999,
+      "endTime": 2004
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "And others were concerned about accuracy.",
+      "startTime": 2005,
+      "endTime": 2010
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "We can’t let those issues linger.",
+      "startTime": 2011,
+      "endTime": 2016
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "I’ll prioritize those items in the backlog.",
+      "startTime": 2017,
+      "endTime": 2021
+    },
+    {
+      "speaker": "Sam Whitaker",
+      "text": "Thanks, Priya, that’ll help us stay focused.",
+      "startTime": 2022,
+      "endTime": 2027
+    },
+    {
+      "speaker": "Tom Okafor",
+      "text": "Alright, what’s next on our agenda?",
+      "startTime": 2028,
+      "endTime": 2033
+    },
+    {
+      "speaker": "Dana Whitfield",
+      "text": "Next up, the pricing changes.",
+      "startTime": 2034,
+      "endTime": 2039
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "We should discuss how that affects costs.",
+      "startTime": 2040,
+      "endTime": 2044
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "And how it impacts our user base.",
+      "startTime": 2045,
+      "endTime": 2049
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "It’s definitely a critical piece of the puzzle.",
+      "startTime": 2050,
+      "endTime": 2055
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "Let’s ensure our users see value in it.",
+      "startTime": 2056,
+      "endTime": 2061
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Absolutely, we don’t want to lose customers.",
+      "startTime": 2062,
+      "endTime": 2067
+    },
+    {
+      "speaker": "Tom Okafor",
+      "text": "Agreed, retaining customers is key.",
+      "startTime": 2068,
+      "endTime": 2073
+    },
+    {
+      "speaker": "Sam Whitaker",
+      "text": "Let’s wrap this up before we run out of time.",
+      "startTime": 2074,
+      "endTime": 2079
+    },
+    {
+      "speaker": "Dana Whitfield",
+      "text": "Yeah, we've got a lot to finalize.",
+      "startTime": 2080,
+      "endTime": 2084
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Let’s list out our priorities for Q4.",
+      "startTime": 2085,
+      "endTime": 2090
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "I can help compile the feedback.",
+      "startTime": 2091,
+      "endTime": 2095
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "And I’ll draft the improvements for sharing.",
+      "startTime": 2096,
+      "endTime": 2100
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "Looks like we’re all on the same page.",
+      "startTime": 2101,
+      "endTime": 2105
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Perfect, let’s keep the momentum going!",
+      "startTime": 2106,
+      "endTime": 2110
+    },
+    {
+      "speaker": "Tom Okafor",
+      "text": "So, let’s start with the public clip-sharing experience.",
+      "startTime": 2401,
+      "endTime": 2410
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "I think that’s crucial for user engagement, right?",
+      "startTime": 2411,
+      "endTime": 2417
+    },
+    {
+      "speaker": "Dana Whitfield",
+      "text": "Absolutely, it could really help close deals.",
+      "startTime": 2418,
+      "endTime": 2425
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "We just need to ensure it doesn’t overload our team.",
+      "startTime": 2426,
+      "endTime": 2432
+    },
+    {
+      "speaker": "Sam Whitaker",
+      "text": "Yeah, storage costs could skyrocket if we get too ambitious.",
+      "startTime": 2433,
+      "endTime": 2438
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "And that’ll impact our embedding costs as well.",
+      "startTime": 2439,
+      "endTime": 2446
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "We also have to consider the technical debt.",
+      "startTime": 2447,
+      "endTime": 2453
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "Right, we need a balance between features and quality.",
+      "startTime": 2454,
+      "endTime": 2459
+    },
+    {
+      "speaker": "Tom Okafor",
+      "text": "What about transcript search quality? Anyone think it needs work?",
+      "startTime": 2460,
+      "endTime": 2466
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "Definitely. Users expect accurate and fast results.",
+      "startTime": 2467,
+      "endTime": 2474
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Improving that could take some resources, though.",
+      "startTime": 2475,
+      "endTime": 2480
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "But if it’s better, we’ll get more positive feedback.",
+      "startTime": 2481,
+      "endTime": 2488
+    },
+    {
+      "speaker": "Dana Whitfield",
+      "text": "Yeah, positive feedback converts to more sales.",
+      "startTime": 2489,
+      "endTime": 2495
+    },
+    {
+      "speaker": "Sam Whitaker",
+      "text": "Let’s not forget about the calendar integration.",
+      "startTime": 2496,
+      "endTime": 2502
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "That’s another area where users want improvements.",
+      "startTime": 2503,
+      "endTime": 2510
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "But we have to be realistic about timelines.",
+      "startTime": 2511,
+      "endTime": 2516
+    },
+    {
+      "speaker": "Tom Okafor",
+      "text": "True, we can’t promise everything for Q4.",
+      "startTime": 2517,
+      "endTime": 2523
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "What about the per-seat pricing changes? Where do we stand?",
+      "startTime": 2524,
+      "endTime": 2530
+    },
+    {
+      "speaker": "Dana Whitfield",
+      "text": "Clients are asking for clarity on that.",
+      "startTime": 2531,
+      "endTime": 2536
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "We need to finalize that quickly—before we lock the roadmap.",
+      "startTime": 2537,
+      "endTime": 2543
+    },
+    {
+      "speaker": "Sam Whitaker",
+      "text": "Storage growth is a concern too, right?",
+      "startTime": 2544,
+      "endTime": 2549
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Yeah, if we add features, we need to manage that.",
+      "startTime": 2550,
+      "endTime": 2556
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "We should prioritize features that won’t drastically increase storage.",
+      "startTime": 2557,
+      "endTime": 2564
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "Accessibility should also be part of our improvements.",
+      "startTime": 2565,
+      "endTime": 2571
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "Absolutely, that’s a key aspect of the user experience.",
+      "startTime": 2572,
+      "endTime": 2579
+    },
+    {
+      "speaker": "Tom Okafor",
+      "text": "We can’t afford to overlook that in our roadmap.",
+      "startTime": 2580,
+      "endTime": 2587
+    },
+    {
+      "speaker": "Dana Whitfield",
+      "text": "So, how do we rank these items for priority?",
+      "startTime": 2588,
+      "endTime": 2595
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Let’s vote on them based on impact and feasibility.",
+      "startTime": 2596,
+      "endTime": 2602
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "Good idea! That’ll help us reach a consensus.",
+      "startTime": 2603,
+      "endTime": 2609
+    },
+    {
+      "speaker": "Sam Whitaker",
+      "text": "I can help with that, especially on the cost side.",
+      "startTime": 2610,
+      "endTime": 2616
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "And I’ll provide input on performance metrics.",
+      "startTime": 2617,
+      "endTime": 2623
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "Let’s make sure we’re all aligned on goals.",
+      "startTime": 2624,
+      "endTime": 2630
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Yeah, clarity will help us avoid confusion later.",
+      "startTime": 2631,
+      "endTime": 2638
+    },
+    {
+      "speaker": "Tom Okafor",
+      "text": "Are we all set for the voting process?",
+      "startTime": 2639,
+      "endTime": 2645
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "I think we’re good to go.",
+      "startTime": 2646,
+      "endTime": 2652
+    },
+    {
+      "speaker": "Dana Whitfield",
+      "text": "Let’s wrap this up efficiently.",
+      "startTime": 2653,
+      "endTime": 2659
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "I’m ready to start drafting right after this.",
+      "startTime": 2660,
+      "endTime": 2665
+    },
+    {
+      "speaker": "Sam Whitaker",
+      "text": "Same here, I’ll keep my notes handy.",
+      "startTime": 2666,
+      "endTime": 2672
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "I’ll follow up on accessibility requirements.",
+      "startTime": 2673,
+      "endTime": 2679
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "And I’ll check on search quality metrics.",
+      "startTime": 2680,
+      "endTime": 2686
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Great, let’s finalize our priorities.",
+      "startTime": 2687,
+      "endTime": 2693
+    },
+    {
+      "speaker": "Tom Okafor",
+      "text": "We’ve got less than thirty minutes.",
+      "startTime": 2694,
+      "endTime": 2700
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Alright, let’s make these minutes count.",
+      "startTime": 2701,
+      "endTime": 2707
+    },
+    {
+      "speaker": "Dana Whitfield",
+      "text": "Ready when you are!",
+      "startTime": 2708,
+      "endTime": 2714
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "Let’s do this!",
+      "startTime": 2715,
+      "endTime": 2720
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "So, about that search quality, we need to prioritize improvements.",
+      "startTime": 3001,
+      "endTime": 3005
+    },
+    {
+      "speaker": "Tom Okafor",
+      "text": "Yeah, the feedback from customers has been pretty clear on that.",
+      "startTime": 3006,
+      "endTime": 3012
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "Exactly, it’s a major frustration for them.",
+      "startTime": 3013,
+      "endTime": 3017
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Let’s make sure we have a solid plan before we commit.",
+      "startTime": 3018,
+      "endTime": 3025
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Agreed, but we’re also dealing with that technical debt.",
+      "startTime": 3026,
+      "endTime": 3031
+    },
+    {
+      "speaker": "Sam Whitaker",
+      "text": "Right, we can't ignore the cost implications either.",
+      "startTime": 3032,
+      "endTime": 3036
+    },
+    {
+      "speaker": "Dana Whitfield",
+      "text": "If we want to close deals, this needs to be a priority.",
+      "startTime": 3037,
+      "endTime": 3043
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "Let’s also consider how it affects the user experience.",
+      "startTime": 3044,
+      "endTime": 3050
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "It’s all connected, better search means better satisfaction.",
+      "startTime": 3051,
+      "endTime": 3055
+    },
+    {
+      "speaker": "Tom Okafor",
+      "text": "And that ties back to our retention rates too.",
+      "startTime": 3056,
+      "endTime": 3062
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "I can start drafting some mockups for the new experience.",
+      "startTime": 3063,
+      "endTime": 3068
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "That would be helpful, let’s make sure it’s feasible.",
+      "startTime": 3069,
+      "endTime": 3074
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Feasible is key; I don’t want us overcommitting.",
+      "startTime": 3075,
+      "endTime": 3081
+    },
+    {
+      "speaker": "Sam Whitaker",
+      "text": "And storage growth should be part of the discussion too.",
+      "startTime": 3082,
+      "endTime": 3087
+    },
+    {
+      "speaker": "Dana Whitfield",
+      "text": "Absolutely, we need to present a comprehensive plan to sales.",
+      "startTime": 3088,
+      "endTime": 3095
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "Let’s not overlook accessibility, it’s critical.",
+      "startTime": 3096,
+      "endTime": 3101
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "I can prioritize that in our search metrics.",
+      "startTime": 3102,
+      "endTime": 3107
+    },
+    {
+      "speaker": "Tom Okafor",
+      "text": "Perfect, we need to cover all bases.",
+      "startTime": 3108,
+      "endTime": 3112
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Okay, let’s list what needs immediate attention first.",
+      "startTime": 3113,
+      "endTime": 3119
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "I think we should start with search quality.",
+      "startTime": 3120,
+      "endTime": 3125
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "And then accessibility right after.",
+      "startTime": 3126,
+      "endTime": 3130
+    },
+    {
+      "speaker": "Sam Whitaker",
+      "text": "Don’t forget about the clip-sharing experience.",
+      "startTime": 3131,
+      "endTime": 3136
+    },
+    {
+      "speaker": "Dana Whitfield",
+      "text": "That’s a great point; it’s a unique feature for us.",
+      "startTime": 3137,
+      "endTime": 3142
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "All this ties into how we present ourselves.",
+      "startTime": 3143,
+      "endTime": 3148
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "I’ll gather data on the embedding costs too.",
+      "startTime": 3149,
+      "endTime": 3154
+    },
+    {
+      "speaker": "Tom Okafor",
+      "text": "Alright, we have some good action items.",
+      "startTime": 3155,
+      "endTime": 3160
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Let’s make sure we can track progress on them.",
+      "startTime": 3161,
+      "endTime": 3166
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "I can help set up a timeline for that.",
+      "startTime": 3167,
+      "endTime": 3172
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Good, we need to stay on top of the deadlines.",
+      "startTime": 3173,
+      "endTime": 3178
+    },
+    {
+      "speaker": "Sam Whitaker",
+      "text": "And monitor the potential cost spikes.",
+      "startTime": 3179,
+      "endTime": 3185
+    },
+    {
+      "speaker": "Dana Whitfield",
+      "text": "We need to ensure sales has everything they need.",
+      "startTime": 3186,
+      "endTime": 3191
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "Exactly, clear communication is key here.",
+      "startTime": 3192,
+      "endTime": 3197
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "Let’s summarize our priorities before we wrap up.",
+      "startTime": 3198,
+      "endTime": 3203
+    },
+    {
+      "speaker": "Tom Okafor",
+      "text": "Okay, so search quality first, then accessibility?",
+      "startTime": 3204,
+      "endTime": 3209
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Yes, followed by the clip-sharing experience.",
+      "startTime": 3210,
+      "endTime": 3217
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "And then the embedding costs and storage issues.",
+      "startTime": 3218,
+      "endTime": 3223
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "That sounds solid, let’s get it documented.",
+      "startTime": 3224,
+      "endTime": 3229
+    },
+    {
+      "speaker": "Sam Whitaker",
+      "text": "Agreed, we’re on a tight timeline.",
+      "startTime": 3230,
+      "endTime": 3235
+    },
+    {
+      "speaker": "Dana Whitfield",
+      "text": "Let’s aim to finalize this by next week.",
+      "startTime": 3236,
+      "endTime": 3241
+    },
+    {
+      "speaker": "Lena Ortiz",
+      "text": "I think we can make that happen.",
+      "startTime": 3242,
+      "endTime": 3247
+    },
+    {
+      "speaker": "Ibrahim Diallo",
+      "text": "Just a reminder, we have to keep the quality in mind.",
+      "startTime": 3248,
+      "endTime": 3253
+    },
+    {
+      "speaker": "Tom Okafor",
+      "text": "Absolutely, no cutting corners.",
+      "startTime": 3254,
+      "endTime": 3259
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Okay, let’s get to work then.",
+      "startTime": 3260,
+      "endTime": 3265
+    },
+    {
+      "speaker": "Grace Kim",
+      "text": "Looking forward to seeing the updates.",
+      "startTime": 3266,
+      "endTime": 3271
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Let’s reconvene next week with progress.",
+      "startTime": 3272,
+      "endTime": 3277
+    },
+    {
+      "speaker": "Sam Whitaker",
+      "text": "Sounds good to me.",
+      "startTime": 3278,
+      "endTime": 3282
+    },
+    {
+      "speaker": "Dana Whitfield",
+      "text": "Thanks everyone, let’s crush Q4!",
+      "startTime": 3283,
+      "endTime": 3287
+    }
+  ],
+  "summaries": [
+    {
+      "template": "standard",
+      "content": "The Q3 Product Council meeting focused on finalizing the Q4 roadmap, emphasizing the need to prioritize transcript search improvements and clip-sharing features while addressing technical debt and storage costs. Participants discussed the importance of user feedback and accessibility in shaping the product's direction.\n\nKey discussion points:\n- Prioritize transcript search improvements and clip-sharing features.\n- Address technical debt in the ingest pipeline before scaling.\n- Monitor storage costs and embedding expenses closely.\n- Gather user feedback to inform product decisions.\n- Ensure accessibility features are integrated into the roadmap.\n\nDecisions:\n- Transcript search improvements will be the top priority.\n- Clip-sharing will follow, with a focus on user experience.\n- Technical debt must be addressed before new features are implemented.\n\nNext steps:\n- Tom Okafor will gather specific customer feedback.\n- Grace Kim will draft design ideas for the clip-sharing feature.\n- Sam Whitaker will prepare storage usage metrics for the next meeting.",
+      "actionItems": [
+        "Gather specific customer feedback on search and sharing from Tom Okafor.",
+        "Draft design ideas for the clip-sharing feature by Grace Kim.",
+        "Prepare storage usage metrics for the next meeting by Sam Whitaker.",
+        "Prioritize accessibility features in the roadmap.",
+        "Compile feedback on search quality and user experience improvements."
+      ],
+      "source": "llm"
+    },
+    {
+      "template": "decisions",
+      "content": "<markdown>\n## Decisions Made\n- Prioritize transcript search improvements (Owner: Priya Raman)\n- Focus on clip-sharing experience after search (Owner: Grace Kim)\n- Address technical debt before scaling (Owner: Marcus Hale)\n- Ensure accessibility features are included (Owner: Lena Ortiz)\n- Gather specific customer feedback (Owner: Tom Okafor)\n\n## Open Questions\n- What are the final requirements for per-seat pricing changes?\n- How will the improvements impact storage costs?\n- What is the timeline for addressing technical debt?\n\n## Risks and Dependencies\n- Delaying search improvements may lead to losing customers.\n- Storage costs could increase significantly with new features.\n- Technical debt may hinder future scalability and performance.\n- User feedback must be integrated to ensure product relevance.\n</markdown>",
+      "actionItems": [
+        "Finalize the requirements for per-seat pricing changes.",
+        "Gather more specific customer feedback on search and sharing.",
+        "Prepare storage usage metrics for the next meeting.",
+        "Draft an outline for the upcoming meeting discussing pricing changes.",
+        "Ensure accessibility features are prioritized in the next steps."
+      ],
+      "source": "llm"
+    },
+    {
+      "template": "exec-brief",
+      "content": "# Q3 Product Council — Roadmap Lock\n\nThe Q3 Product Council meeting focused on finalizing the Q4 roadmap, emphasizing the need to prioritize transcript search improvements and clip-sharing features. Participants acknowledged the importance of addressing technical debt and managing storage costs while enhancing user experience through accessibility and performance improvements. The team agreed to gather customer feedback and align on priorities to ensure a successful Q4.\n\n## Why it matters\n- Prioritizing transcript search and clip-sharing is crucial for user retention and competitive advantage.\n- Addressing technical debt and storage costs is essential for sustainable growth and product performance.\n- Customer feedback will guide product improvements and ensure alignment with user needs.\n\n## What changed\n- The team decided to focus on search quality improvements first, followed by accessibility and clip-sharing features.\n- Action items were assigned to gather customer insights and prepare for the next meeting.\n\n## Ask / decision needed\n- Finalize the list of priorities for Q4 by next week.\n- Ensure all team members are aligned on their responsibilities and timelines.",
+      "actionItems": [
+        "Gather specific customer feedback on search quality and clip-sharing.",
+        "Prepare storage usage metrics for the next meeting.",
+        "Draft design ideas for the clip-sharing feature.",
+        "Compile a list of priorities for Q4 improvements.",
+        "Check on search quality metrics and accessibility requirements."
+      ],
+      "source": "llm"
+    }
+  ],
+  "promptVersion": 2
+}

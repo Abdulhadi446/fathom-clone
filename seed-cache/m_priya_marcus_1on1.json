@@ -1,0 +1,575 @@
+{
+  "segments": [
+    {
+      "speaker": "Priya Raman",
+      "text": "Hey Marcus, how's it going this week?",
+      "startTime": 0,
+      "endTime": 7
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Hey Priya, it's been a bit hectic, honestly.",
+      "startTime": 8,
+      "endTime": 15
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "You mentioned context switching last time. Is that still an issue?",
+      "startTime": 16,
+      "endTime": 23
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Yeah, I'm juggling two projects right now, and it's tough.",
+      "startTime": 24,
+      "endTime": 31
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "What does that look like for you day-to-day?",
+      "startTime": 32,
+      "endTime": 40
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Well, I’m constantly hopping between tasks, and it really slows me down.",
+      "startTime": 41,
+      "endTime": 54
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Have you thought about ways to minimize that switching?",
+      "startTime": 55,
+      "endTime": 62
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "I’ve considered blocking some time for each project, but it's tricky.",
+      "startTime": 63,
+      "endTime": 70
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Yeah, I get that. Any other ideas?",
+      "startTime": 71,
+      "endTime": 78
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Maybe prioritizing one project over the other could help.",
+      "startTime": 79,
+      "endTime": 85
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "That could work. Which project feels more pressing?",
+      "startTime": 86,
+      "endTime": 93
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "The ingest platform definitely needs more focus.",
+      "startTime": 94,
+      "endTime": 101
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Got it. How do you feel about owning that end-to-end?",
+      "startTime": 102,
+      "endTime": 109
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "I really want to. I feel like I could do a lot with it.",
+      "startTime": 110,
+      "endTime": 118
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "That's great to hear! What’s holding you back?",
+      "startTime": 119,
+      "endTime": 125
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Mainly just the current workload, you know?",
+      "startTime": 126,
+      "endTime": 133
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Absolutely. We should figure out a plan.",
+      "startTime": 134,
+      "endTime": 141
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Yeah, maybe we can offload some tasks?",
+      "startTime": 142,
+      "endTime": 149
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "That could definitely help. Let's look into it.",
+      "startTime": 150,
+      "endTime": 157
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "I also want to talk about tech debt.",
+      "startTime": 158,
+      "endTime": 164
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Sure! What are your thoughts on that?",
+      "startTime": 165,
+      "endTime": 173
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "I feel like we need to address it sooner than later.",
+      "startTime": 174,
+      "endTime": 182
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "I agree. What would you prioritize first?",
+      "startTime": 183,
+      "endTime": 189
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "The database queries are pretty slow.",
+      "startTime": 190,
+      "endTime": 197
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Sounds like a solid choice. Do you have a plan?",
+      "startTime": 198,
+      "endTime": 206
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "I’d need some time to map it out, but yes.",
+      "startTime": 207,
+      "endTime": 213
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Let’s schedule a follow-up to review that.",
+      "startTime": 214,
+      "endTime": 221
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Definitely, I’ll start putting some ideas together.",
+      "startTime": 222,
+      "endTime": 229
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Awesome. By the way, how's your PTO coming up?",
+      "startTime": 230,
+      "endTime": 237
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Oh right, it's next month. I need a break!",
+      "startTime": 238,
+      "endTime": 244
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Sounds well-deserved! Any plans?",
+      "startTime": 245,
+      "endTime": 252
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Just some time with family, maybe a trip.",
+      "startTime": 253,
+      "endTime": 260
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "That sounds nice! Make sure to disconnect.",
+      "startTime": 261,
+      "endTime": 267
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "For sure, I’ll try not to check emails.",
+      "startTime": 268,
+      "endTime": 276
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Good plan. We can catch up when you’re back.",
+      "startTime": 277,
+      "endTime": 283
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Yeah, I’ll have a fresh perspective, hopefully!",
+      "startTime": 284,
+      "endTime": 291
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Looking forward to it! Anything else on your mind?",
+      "startTime": 292,
+      "endTime": 300
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Not right now, I feel good about our chat.",
+      "startTime": 301,
+      "endTime": 308
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Great! Let's keep the momentum going.",
+      "startTime": 309,
+      "endTime": 317
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Absolutely, thanks for the support, Priya.",
+      "startTime": 318,
+      "endTime": 325
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Anytime, Marcus! Talk soon.",
+      "startTime": 326,
+      "endTime": 333
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Hey, I wanted to revisit our earlier discussion.",
+      "startTime": 900,
+      "endTime": 912
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Sure, about the context switching?",
+      "startTime": 913,
+      "endTime": 920
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Yeah, it’s been tough juggling both projects.",
+      "startTime": 921,
+      "endTime": 935
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "I can imagine. What’s the biggest challenge?",
+      "startTime": 936,
+      "endTime": 940
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "I think it’s just keeping everything straight in my head.",
+      "startTime": 941,
+      "endTime": 958
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "That makes sense. Have you thought about any strategies?",
+      "startTime": 959,
+      "endTime": 968
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "I’m considering time-blocking my schedule more effectively.",
+      "startTime": 969,
+      "endTime": 980
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "That’s a solid approach. Would it help with prioritizing?",
+      "startTime": 981,
+      "endTime": 995
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Definitely, I think that’ll help clear my mind.",
+      "startTime": 996,
+      "endTime": 1005
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Sounds like a plan. Have you talked to anyone else about this?",
+      "startTime": 1006,
+      "endTime": 1018
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Not really, just you. I feel like you understand.",
+      "startTime": 1019,
+      "endTime": 1030
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "I’m glad to hear that. Support is important.",
+      "startTime": 1031,
+      "endTime": 1043
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Yeah, I appreciate it. Helps to know I'm not alone.",
+      "startTime": 1044,
+      "endTime": 1055
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Absolutely. What else is on your radar?",
+      "startTime": 1056,
+      "endTime": 1070
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Well, there’s the tech debt we discussed last time.",
+      "startTime": 1071,
+      "endTime": 1083
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Right, how do you feel about tackling that?",
+      "startTime": 1084,
+      "endTime": 1096
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "I think we really need to prioritize it soon.",
+      "startTime": 1097,
+      "endTime": 1110
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "What’s the biggest piece of tech debt right now?",
+      "startTime": 1111,
+      "endTime": 1125
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Mainly the legacy code that’s slowing us down.",
+      "startTime": 1126,
+      "endTime": 1139
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Got it. Do you have a plan to address it?",
+      "startTime": 1140,
+      "endTime": 1153
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "I think we should start with some refactoring.",
+      "startTime": 1154,
+      "endTime": 1166
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "That’s a good first step. Will you need help?",
+      "startTime": 1167,
+      "endTime": 1180
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Probably, I’d like to get the team involved.",
+      "startTime": 1181,
+      "endTime": 1195
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Definitely, collaboration can lead to better solutions.",
+      "startTime": 1196,
+      "endTime": 1209
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Agreed! I’ll draft a proposal for the team.",
+      "startTime": 1210,
+      "endTime": 1222
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Sounds good. Keep me in the loop!",
+      "startTime": 1223,
+      "endTime": 1235
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Will do! Also, I’ve been thinking about my career path.",
+      "startTime": 1236,
+      "endTime": 1248
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Oh? What’s on your mind regarding that?",
+      "startTime": 1249,
+      "endTime": 1261
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "I’m curious about the staff engineer track.",
+      "startTime": 1262,
+      "endTime": 1276
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "That’s a great goal! What interests you about it?",
+      "startTime": 1277,
+      "endTime": 1290
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "I’d like to take ownership of the platform.",
+      "startTime": 1291,
+      "endTime": 1305
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "That’s a solid ambition. Do you feel ready for it?",
+      "startTime": 1306,
+      "endTime": 1317
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "I think so, but I’d like some guidance.",
+      "startTime": 1318,
+      "endTime": 1330
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Happy to help! We can outline some goals together.",
+      "startTime": 1331,
+      "endTime": 1342
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "That would be awesome, thanks!",
+      "startTime": 1343,
+      "endTime": 1355
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "When’s your PTO next month?",
+      "startTime": 1356,
+      "endTime": 1365
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "I’ve got it scheduled for the second week.",
+      "startTime": 1366,
+      "endTime": 1375
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Perfect, we can plan around that.",
+      "startTime": 1376,
+      "endTime": 1388
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Yeah, I’ll make sure to wrap up tasks before then.",
+      "startTime": 1389,
+      "endTime": 1400
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "That’s a good approach. Enjoy your time off!",
+      "startTime": 1401,
+      "endTime": 1412
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Thanks! I’m really looking forward to it.",
+      "startTime": 1413,
+      "endTime": 1425
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "You deserve it. Let’s catch up before you leave.",
+      "startTime": 1426,
+      "endTime": 1438
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Definitely, I’ll set up a time.",
+      "startTime": 1439,
+      "endTime": 1450
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Great! Sounds like a plan.",
+      "startTime": 1451,
+      "endTime": 1462
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Thanks again for everything, Priya.",
+      "startTime": 1463,
+      "endTime": 1475
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Anytime, Marcus! I’m here to support you.",
+      "startTime": 1476,
+      "endTime": 1487
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "Really means a lot to me.",
+      "startTime": 1488,
+      "endTime": 1500
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "I’m glad to hear that. Keep pushing forward!",
+      "startTime": 1501,
+      "endTime": 1513
+    },
+    {
+      "speaker": "Marcus Hale",
+      "text": "I will! Talk soon, Priya.",
+      "startTime": 1514,
+      "endTime": 1525
+    },
+    {
+      "speaker": "Priya Raman",
+      "text": "Talk soon, Marcus.",
+      "startTime": 1526,
+      "endTime": 1537
+    }
+  ],
+  "summaries": [
+    {
+      "template": "standard",
+      "content": "**Overview**  \nPriya and Marcus discussed Marcus's challenges with context switching between projects, the need to address tech debt, and his career aspirations. They explored strategies for prioritizing tasks and agreed on the importance of collaboration and support.  \n\n**Key discussion points**  \n- Marcus is juggling two projects, causing context switching issues.  \n- He considers time-blocking and prioritizing the ingest platform to manage workload.  \n- Tech debt, particularly slow database queries and legacy code, needs to be addressed soon.  \n- Marcus is interested in pursuing a staff engineer track and taking ownership of the platform.  \n- They plan to outline goals and collaborate on tech debt solutions.  \n\n**Decisions**  \n- Marcus will draft a proposal for addressing tech debt with the team.  \n- They will schedule a follow-up to review Marcus's plans for tech debt and career goals.  \n\n**Next steps**  \n- Marcus to start drafting a proposal for tech debt solutions.  \n- Priya and Marcus to outline career goals together.  \n- Marcus to set up a follow-up meeting before his PTO.  \n- Priya to support Marcus in prioritizing the ingest platform.  \n- Marcus to consider time-blocking strategies for better task management.",
+      "actionItems": [
+        "Draft a proposal for tech debt solutions.",
+        "Outline career goals with Priya.",
+        "Set up a follow-up meeting before PTO.",
+        "Prioritize the ingest platform tasks.",
+        "Consider time-blocking strategies."
+      ],
+      "source": "llm"
+    },
+    {
+      "template": "exec-brief",
+      "content": "In a recent 1:1, Priya and Marcus discussed the challenges Marcus faces with context switching between two projects. He expressed a desire to focus more on the ingest platform and tackle tech debt, particularly around legacy code and slow database queries. They agreed on the importance of time-blocking to improve productivity and discussed the need for collaboration on refactoring efforts. Additionally, Marcus is interested in pursuing a staff engineer track and seeks guidance on outlining his career goals.\n\n- **Why it matters**: Addressing context switching and tech debt will enhance productivity and project outcomes.\n- **What changed**: Marcus is prioritizing the ingest platform and plans to draft a proposal for tech debt refactoring.\n- **Ask / decision needed**: Support Marcus in outlining his career goals and provide resources for tackling tech debt.",
+      "actionItems": [
+        "Schedule a follow-up to review Marcus's tech debt proposal.",
+        "Assist Marcus in outlining his career goals for the staff engineer track.",
+        "Encourage Marcus to implement time-blocking strategies for project management."
+      ],
+      "source": "llm"
+    }
+  ],
+  "promptVersion": 2
+}
