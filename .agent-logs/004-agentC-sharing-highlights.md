@@ -127,3 +127,41 @@ seed: move `hl_m_acme_discovery_0` onto the CRM exchange around 1086–1129s
 - Live write path: `POST /api/highlights` → created `hl_cc91…` on `m_sprint42_standup`,
   `PATCH {isPublic:true}` → slug `9c9da37e0f8b`, `/clip/9c9da37e0f8b` → 200,
   `PATCH {isPublic:false}` → revoked, `DELETE` → removed (row count restored to 1).
+
+## Deploy 2 — `rel-20260925-232207-70571`
+
+Polish shipped: muted-autoplay fallback (unmuted play → muted retry → "press play"
+message), an "exploring past the clip — replay re-arms the auto-stop" indicator, and the
+temporary `/clip/preview` harness removed (it had served its purpose: clicking through
+HighlightBar states locally; ownership map grants me `src/app/clip/[slug]/**`, so the
+extra route is gone).
+
+Final `npx tsc --noEmit` clean, `npm run lint` clean, deploy typecheck + build + local
+smoke + remote health all green.
+
+### Live verification after deploy 2 (all cookie-less `curl`)
+
+- `GET /clip/q4-roadmap-lock` → **200**, `HTTP/1.1 200 OK`, **0 `Set-Cookie` headers**,
+  `<title>The actual Q4 commitment list is read back and agreed — Fathom clip</title>`,
+  contains the "simulated recording" label and `/audio/m_q3_product_council.m4a`.
+- `/clip/acme-crm-pain` → 200, `/clip/northwind-sso-gate` → 200.
+- `/clip/bogus-slug-12345` → **404** (custom dark not-found page, `notFound()`).
+- `/api/health` → 200, `/api/highlights?meetingId=…` → 200 with the seeded rows.
+- `/clip/preview` → 404 (harness deleted).
+
+## Handover notes for the lead
+
+1. **`acme-crm-pain` sits in a transcript gap** (Acme transcript jumps 312s → 900s). The
+   page degrades gracefully (closest lines + "no lines inside the window" notice), but if
+   you want the emphasised-lines moment there, move `hl_m_acme_discovery_0` onto the CRM
+   exchange ≈ 1086–1129s (“…notes to be pushed directly into your CRM”) or fix the seed
+   gaps in `seed-cache/`. The other two seeded clips are healthy (12 and 10 in-range lines).
+2. **Seek contract for agent A / anyone**: `HighlightBar` fires
+   `window.dispatchEvent(new CustomEvent("fathom:seek", { detail: { time } }))` *and* calls
+   the optional `onSeek(time)` prop; `ClipPlayer` listens for the same event. Wire your
+   `<audio>` element once and every highlight/transcript click works.
+3. **Worktree deploys need the hardlink `node_modules`** (same failure + fix as B and D
+   logged): `rm node_modules && cp -al …/project/node_modules node_modules`. Worth fixing
+   centrally in `deploy.sh` staging (`cp --dereference`) after the run.
+4. Dev quirk (already flagged by B/D): `.env.local`'s empty `DATABASE_PATH=` defeats the
+   `??` fallback in `src/db/index.ts` for `next dev`; production sets the var explicitly.
