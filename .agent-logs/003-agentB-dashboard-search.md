@@ -67,7 +67,45 @@ Dev server: `npx next dev -p 3002` (webpack — see "Problems" below).
 
 ## Commits
 
-(to be filled as they land)
+- `59b8427` — Dashboard at /: stats strip, meeting rows w/ type badges + sort;
+  cross-meeting search (debounced box, /search, /api/search). Pushed to `origin/agent-b`.
+
+## Deploys
+
+1. **`rel-20260925-230310-63670` — FAILED, auto-rolled back.** Remote service could not
+   start: `Cannot find module 'next'`. Cause: `.next/standalone/node_modules` was a
+   **symlink** to `/home/abdulhadi/Projects/project/node_modules` (inherited from the
+   worktree's symlinked `node_modules`; `copyTracedFiles` re-creates symlinks verbatim),
+   so the release contained a dangling absolute symlink. Rollback verified the site still
+   served 200 (`rolled back OK`) — live site was never down.
+2. **`rel-20260925-230943-66655` — OK** (after the node_modules fix below).
+
+### The worktree symlink fix (no shared file touched)
+
+Replaced the worktree's `node_modules` symlink with a **hardlink copy** of the main
+checkout's tree (same filesystem, ~0 extra disk, no npm/registry involved):
+
+```bash
+rm node_modules && cp -al /home/abdulhadi/Projects/project/node_modules node_modules
+```
+
+`next build` now emits a real `.next/standalone/node_modules` (20 traced packages,
+79 MB) exactly like the lead's builds. **Agents A and C have the same symlinked
+`node_modules` and will fail their first deploy the same way** — either do the same, or
+have the lead de-reference the symlink in `deploy.sh` staging
+(`cp -rL` / `cp --dereference`) which would fix it for everyone.
+
+### Live verification (after deploy #2 above, i.e. the successful one)
+
+- `curl http://51.170.90.41/` → **200**, 9 meeting rows in the server-rendered HTML
+  (8 seeded + agent D's demo ingest), stats strip `9 / 5 / 5h 5m / 36 / 13`,
+  sort links + search box present, type badges Sales/Interview/Standup/Planning/Internal.
+- `/api/search?q=roadmap` → **9 hits**; `SSO` → 10, `blocker` → 5, `budget` → 3;
+  transcript hits deep-link `/meetings/m_q3_product_council?t=1324` etc.
+- `/search?q=roadmap` → 200, 10 `<mark>` highlights.
+- `/api/health` → `{meetings: 9, transcriptSegments: 1167, summaries: 24,
+  actionItems: 36, highlights: 13}`.
+
 
 ## Problems / for the lead
 
