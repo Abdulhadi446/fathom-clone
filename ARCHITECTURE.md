@@ -116,6 +116,8 @@ If you need something an owner owns, ask the lead instead.
 | `src/lib/llm.ts`, `src/lib/summarize.ts`, `src/lib/transcript.ts` | **foundation (frozen)** | call, don't modify |
 | `src/lib/queries.ts`, `src/lib/format.ts` | foundation (read-mostly) | additive changes only, coordinate first |
 | `src/app/api/health`, `src/app/api/meetings` | foundation | |
+| `src/app/layout.tsx`, `src/components/Nav.tsx`, `src/app/globals.css` | **foundation (frozen)** | the app shell every page renders inside |
+| `src/components/highlights/HighlightBar.tsx` | **agent C** (contract set by lead) | agent A renders it in `/meetings/[id]` and passes `{meetingId, durationSeconds, currentTime, selection}`; C implements the body. Props shape is fixed — extend with optional props only |
 | `scripts/deploy.sh`, `ops/*` | foundation | everyone runs it, nobody edits it mid-run |
 | `src/app/page.tsx`, `src/app/meetings/page.tsx`, `src/app/api/search/**` | **agent B** | dashboard + list + cross-meeting search |
 | `src/app/meetings/[id]/**` | **agent A** | transcript player, summary tabs, action items |
