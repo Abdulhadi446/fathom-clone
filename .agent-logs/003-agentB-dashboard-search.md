@@ -120,3 +120,52 @@ have the lead de-reference the symlink in `deploy.sh` staging
    invalid, it points out of the filesystem root". `npx next dev -p 3002` (webpack) works.
 3. Deep-link contract for agent A: `/meetings/[id]?t=<seconds>` = seek transcript player
    to that start time (I floor to integer seconds).
+
+## Slice 2 — `/meetings` table view + participant filter
+
+- `99dbfbd` — `src/app/meetings/page.tsx` (owned per the ownership map) + new
+  `src/components/dashboard/MeetingTable.tsx`:
+  - dense table: Date (relative + clock), Meeting (title link + snippet), Participants
+    (avatar stack + count), Type badge, Duration, Lines, Clips, open/total Actions.
+  - `?sort=newest|oldest|longest|people|title` and `?person=<exact name>` filters,
+    both server-side, no JS; sort is preserved when a person chip is picked and vice
+    versa (`href()` helper builds the query string).
+  - participant chips = every person in the data, sorted by meeting count, with counts.
+  - dashboard header gained a "Table view" link → `/meetings`; table header has
+    "Row view" → `/`.
+  - compact `SearchBox size="sm"` on the page too.
+
+## Deploy 3 (final)
+
+- **`rel-20260925-231551-68582` — OK**, rolled out on top of the running site.
+
+### Live verification (http://51.170.90.41/, 2026-09-25)
+
+| check | result |
+|---|---|
+| `GET /` | **200**, 9 meeting rows server-rendered (8 seeded + agent D demo), stats `9 / 5 / 5h 5m / 36 / 13`, sort bar + "Table view" link + search box present |
+| `GET /meetings` | **200**, 9 rows, 40 participant-filter chip hrefs |
+| `GET /meetings?person=Priya%20Raman&sort=longest` | **200**, 5 rows (correct subset) |
+| `GET /api/search?q=roadmap` | **9 hits**, first `/meetings/m_q3_product_council` |
+| `GET /api/search?q=SSO` / `blocker` / `budget` | **10 / 5 / 3 hits**, transcript hits deep-link with `?t=` (`…&t=111`, `…&t=43`, `…&t=232`) |
+| `GET /search?q=SSO` | **200**, 10 `<mark>` highlights, groups Meetings/Transcript/Summary |
+| `GET /search` (no q) | 200 + suggestion chips (roadmap/blocker/budget/SSO/…) |
+| `GET /api/search?q=` or `?q=a` | `{"count":0}` (searchAll's ≥2-char rule) |
+| `GET /api/health` | `{meetings:9, transcriptSegments:1167, summaries:24, actionItems:36, highlights:13}` |
+| `GET /meetings/m_q3_product_council` | 404 — agent A's route not merged yet (expected) |
+
+Local gates: `npx tsc --noEmit` clean, `npm run lint` clean (only the pre-existing
+warning in agent C's `HighlightBar.tsx`).
+
+## Summary for the lead
+
+- Everything in my ownership map is built, committed (`59b8427`, `379bbd9`, `99dbfbd`,
+  plus this log entry) and pushed to `origin/agent-b`; three deploys, two green.
+- **Needs the lead:** (a) `DATABASE_PATH=` empty in `.env.*.example` / fresh checkouts
+  breaks local serving (empty DB) — see Problems #1; (b) agents A & C still have the
+  symlinked `node_modules` that makes their first deploy fail with
+  `Cannot find module 'next'` — my hardlink fix or a `cp --dereference` in `deploy.sh`
+  fixes it for everyone; (c) `npm run dev` (Turbopack) panics in worktrees, use
+  `npx next dev`.
+- Contract for agent A: transcript deep links are **`/meetings/[id]?t=<seconds>`**
+  (integer seconds from meeting start) — please seek the player to that offset.
