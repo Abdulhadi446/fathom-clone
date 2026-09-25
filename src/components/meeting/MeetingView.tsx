@@ -1,7 +1,7 @@
 "use client";
 
 import HighlightBar, { type HighlightSelection } from "@/components/highlights/HighlightBar";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ActionItems, { type ActionItemRow } from "./ActionItems";
 import { formatClock } from "./formatClock";
 import ScrubBar from "./ScrubBar";
@@ -19,6 +19,8 @@ export interface MeetingViewProps {
   speakerOrder: string[];
   summaries: TemplateSummary[];
   actionItems: ActionItemRow[];
+  /** Deep link from search: `/meetings/[id]?t=<seconds>` — seek on load, no autoplay. */
+  initialTimeSeconds?: number | null;
 }
 
 const RATES = [1, 1.25, 1.5, 2, 0.75];
@@ -44,10 +46,19 @@ function activeIndexFor(segments: Seg[], time: number): number {
   return found;
 }
 
-export default function MeetingView({ meeting, segments, summaries, actionItems }: MeetingViewProps) {
+export default function MeetingView({
+  meeting,
+  segments,
+  speakerOrder,
+  summaries,
+  actionItems,
+  initialTimeSeconds,
+}: MeetingViewProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const timeRef = useRef(0);
   const durationRef = useRef(meeting.durationSeconds);
+  /** Seek issued before the audio metadata arrived — applied in onLoadedMetadata. */
+  const pendingSeekRef = useRef<number | null>(null);
 
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(meeting.durationSeconds);
@@ -77,10 +88,13 @@ export default function MeetingView({ meeting, segments, summaries, actionItems 
 
   const activeIndex = useMemo(() => activeIndexFor(segments, currentTime), [segments, currentTime]);
 
-  const colorMap = useMemo(
-    () => buildSpeakerColorMap(segments.map((segment) => segment.speaker)),
-    [segments],
-  );
+  const colorMap = useMemo(() => {
+    const order = [...speakerOrder];
+    for (const segment of segments) {
+      if (!order.includes(segment.speaker)) order.push(segment.speaker);
+    }
+    return buildSpeakerColorMap(order);
+  }, [speakerOrder, segments]);
   const colorFor = useCallback(
     (speaker: string) => colorMap.get(speaker) ?? SPEAKER_PALETTE[0],
     [colorMap],
@@ -91,11 +105,16 @@ export default function MeetingView({ meeting, segments, summaries, actionItems 
       const clamped = Math.min(Math.max(0, time), durationRef.current);
       const audio = audioRef.current;
       setTime(clamped);
-      if (!audioFailed && audio && audio.readyState > 0) {
-        try {
-          audio.currentTime = clamped;
-        } catch {
-          /* metadata not ready yet — the timeupdate handler will catch up */
+      if (!audioFailed && audio) {
+        if (audio.readyState > 0) {
+          try {
+            audio.currentTime = clamped;
+            pendingSeekRef.current = null;
+          } catch {
+            pendingSeekRef.current = clamped;
+          }
+        } else {
+          pendingSeekRef.current = clamped;
         }
       }
       if (options.token !== false) setSeekToken((value) => value + 1);
@@ -145,6 +164,40 @@ export default function MeetingView({ meeting, segments, summaries, actionItems 
     (delta: number) => seekTo(timeRef.current + delta),
     [seekTo],
   );
+
+  // Deep link `/meetings/[id]?t=<seconds>` (agent B search results): seek on
+  // load and scroll the transcript to that line — never autoplay.
+  const deepLinkApplied = useRef(false);
+  useEffect(() => {
+    if (deepLinkApplied.current) return;
+    deepLinkApplied.current = true;
+    if (typeof initialTimeSeconds === "number" && Number.isFinite(initialTimeSeconds) && initialTimeSeconds > 0) {
+      seekTo(initialTimeSeconds);
+    }
+  }, [initialTimeSeconds, seekTo]);
+
+  // Highlight "play from here": agent C fires BOTH the optional `onSeek` prop
+  // and a `fathom:seek` window event — dedupe so we only seek once.
+  const highlightSeekGuard = useRef({ time: -1, at: 0 });
+  const highlightSeek = useCallback(
+    (time: number) => {
+      const now = Date.now();
+      const guard = highlightSeekGuard.current;
+      if (guard.time === time && now - guard.at < 600) return;
+      highlightSeekGuard.current = { time, at: now };
+      seekTo(time, { play: true });
+    },
+    [seekTo],
+  );
+
+  useEffect(() => {
+    const onWindowSeek = (event: Event) => {
+      const detail = (event as CustomEvent<{ time?: number }>).detail;
+      if (detail && typeof detail.time === "number") highlightSeek(detail.time);
+    };
+    window.addEventListener("fathom:seek", onWindowSeek);
+    return () => window.removeEventListener("fathom:seek", onWindowSeek);
+  }, [highlightSeek]);
 
   // Virtual clock: keeps the timeline (and transcript sync) alive when the
   // audio file is missing or fails to load.
@@ -333,8 +386,18 @@ export default function MeetingView({ meeting, segments, summaries, actionItems 
           src={`/audio/${meeting.id}.m4a`}
           preload="metadata"
           onLoadedMetadata={(event) => {
-            const meta = event.currentTarget.duration;
+            const audio = event.currentTarget;
+            const meta = audio.duration;
             if (Number.isFinite(meta) && meta > 0) setDuration(meta);
+            const pending = pendingSeekRef.current;
+            if (pending !== null) {
+              try {
+                audio.currentTime = pending;
+              } catch {
+                /* ignore */
+              }
+              pendingSeekRef.current = null;
+            }
             setAudioStatus("ready");
           }}
           onError={() => {
@@ -358,6 +421,7 @@ export default function MeetingView({ meeting, segments, summaries, actionItems 
           durationSeconds={meeting.durationSeconds}
           currentTime={currentTime}
           selection={highlightSelection}
+          onSeek={highlightSeek}
         />
       </div>
 
@@ -375,7 +439,11 @@ export default function MeetingView({ meeting, segments, summaries, actionItems 
         </div>
 
         <div className="flex flex-col gap-4 lg:col-span-5">
-          <SummaryPanel summaries={summaries} />
+          <Suspense
+            fallback={<div className="h-48 animate-pulse rounded-xl border border-neutral-800 bg-neutral-900/40" />}
+          >
+            <SummaryPanel summaries={summaries} />
+          </Suspense>
           <ActionItems meetingId={meeting.id} items={actionItems} />
         </div>
       </div>

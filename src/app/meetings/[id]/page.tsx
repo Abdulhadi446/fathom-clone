@@ -11,22 +11,32 @@ export const dynamic = "force-dynamic";
 
 interface PageProps {
   params: Promise<{ id: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
   const meeting = getMeeting(id);
-  if (!meeting) return { title: "Meeting — Fathom" };
+  // Throw here (not only in the page body) so the response ships a real 404
+  // status instead of streaming a 200 first.
+  if (!meeting) notFound();
   return {
     title: `${meeting.title} — Fathom`,
     description: `Transcript, AI summary and action items for ${meeting.title}.`,
   };
 }
 
-export default async function MeetingDetailPage({ params }: PageProps) {
+export default async function MeetingDetailPage({ params, searchParams }: PageProps) {
   const { id } = await params;
   const meeting = getMeeting(id);
   if (!meeting) notFound();
+
+  // Deep link from agent B's search results: /meetings/[id]?t=<seconds>
+  const query = await searchParams;
+  const rawT = Array.isArray(query.t) ? query.t[0] : query.t;
+  const parsedT = rawT === undefined ? Number.NaN : Number(rawT);
+  const initialTimeSeconds =
+    Number.isFinite(parsedT) && parsedT > 0 ? Math.min(parsedT, meeting.durationSeconds) : null;
 
   const segments = getSegments(id);
   const summaryRows = getSummaries(id);
@@ -132,6 +142,7 @@ export default async function MeetingDetailPage({ params }: PageProps) {
         speakerOrder={speakerOrder}
         summaries={summaries}
         actionItems={actionItems}
+        initialTimeSeconds={initialTimeSeconds}
       />
     </main>
   );
