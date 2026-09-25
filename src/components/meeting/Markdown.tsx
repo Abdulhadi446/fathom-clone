@@ -16,7 +16,11 @@ type Block =
   | { kind: "hr" };
 
 function parse(source: string): Block[] {
-  const lines = source.replace(/\r\n?/g, "\n").split("\n");
+  // Some seeded/LLM outputs wrap everything in a literal <markdown> fence.
+  const cleaned = source
+    .replace(/<\/?markdown>/gi, "")
+    .replace(/^\s*```\s*(?:markdown|md)\s*$/gim, "");
+  const lines = cleaned.replace(/\r\n?/g, "\n").split("\n");
   const blocks: Block[] = [];
   let i = 0;
 

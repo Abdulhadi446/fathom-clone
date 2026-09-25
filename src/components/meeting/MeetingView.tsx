@@ -81,6 +81,31 @@ export default function MeetingView({
     durationRef.current = duration;
   }, [duration]);
 
+  // `preload="metadata"` can finish BEFORE React hydrates, so the synthetic
+  // onLoadedMetadata/onError handlers never fire — reconcile the status here.
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (audio.error) {
+      setAudioStatus("failed");
+      return;
+    }
+    if (audio.readyState >= 1 && Number.isFinite(audio.duration) && audio.duration > 0) {
+      setDuration(audio.duration);
+      durationRef.current = audio.duration;
+      const pending = pendingSeekRef.current;
+      if (pending !== null) {
+        try {
+          audio.currentTime = pending;
+        } catch {
+          /* ignore */
+        }
+        pendingSeekRef.current = null;
+      }
+      setAudioStatus("ready");
+    }
+  }, []);
+
   useEffect(() => {
     const audio = audioRef.current;
     if (audio) audio.playbackRate = rate;
