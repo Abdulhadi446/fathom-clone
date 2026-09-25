@@ -165,3 +165,11 @@ smoke + remote health all green.
    centrally in `deploy.sh` staging (`cp --dereference`) after the run.
 4. Dev quirk (already flagged by B/D): `.env.local`'s empty `DATABASE_PATH=` defeats the
    `??` fallback in `src/db/index.ts` for `next dev`; production sets the var explicitly.
+
+## Repo hygiene
+
+- The first (failed, symlinked-`node_modules`) build leaked 31 Next dist files into a
+  stray `project/` dir at the worktree root; `git add -A` picked them up in `83cfb44`.
+  Removed from git and disk (`git rm -r --cached project && rm -rf project`). Builds after
+  the hardlink fix no longer create it (verified: second build untouched). No `.gitignore`
+  edit needed — kept strictly to files I own.
