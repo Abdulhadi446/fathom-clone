@@ -137,7 +137,7 @@ sleep 1
 
 # wait for health
 OK=0
-for i in $(seq 1 30); do
+for i in \$(seq 1 30); do
   if curl -fsS --max-time 2 "http://127.0.0.1:$APP_PORT/api/health" >/dev/null 2>&1; then
     OK=1
     break
