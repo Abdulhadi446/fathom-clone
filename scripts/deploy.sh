@@ -145,6 +145,12 @@ for i in \$(seq 1 30); do
   sleep 1
 done
 
+if [ "\$OK" = "1" ]; then
+  # the home page and the seeded data must also answer, not just /api/health
+  curl -fsS --max-time 5 "http://127.0.0.1:$APP_PORT/" >/dev/null 2>&1 || OK=0
+  curl -fsS --max-time 5 "http://127.0.0.1:$APP_PORT/api/meetings" 2>/dev/null | grep -q '"count":[1-9]' || OK=0
+fi
+
 if [ "\$OK" != "1" ]; then
   echo "HEALTH CHECK FAILED — rolling back"
   sudo journalctl -u fathom -n 60 --no-pager >&2 || true

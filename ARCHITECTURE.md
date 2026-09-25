@@ -126,3 +126,26 @@ If you need something an owner owns, ask the lead instead.
 Shared UI conventions: dark, dense, neutral palette (Tailwind 4, no UI library).
 Every agent commits incrementally, appends to `.agent-logs/`, and redeploys with
 `./scripts/deploy.sh` — never leave work unpushed to the end.
+
+---
+
+## Parallel build (Phase 2)
+
+Four agents work at the same time. Each one gets an isolated **git worktree** on its own
+branch so nobody's edits collide:
+
+| agent | worktree | branch | dev port |
+|---|---|---|---|
+| A meeting detail | `/home/abdulhadi/Projects/fathom-worktrees/agent-a` | `agent-a` | 3001 |
+| B dashboard/search | `/home/abdulhadi/Projects/fathom-worktrees/agent-b` | `agent-b` | 3002 |
+| C sharing/highlights | `/home/abdulhadi/Projects/fathom-worktrees/agent-c` | `agent-c` | 3003 |
+| D stubs/ingest | `/home/abdulhadi/Projects/fathom-worktrees/agent-d` | `agent-d` | 3004 |
+
+- `node_modules` is a symlink to the main checkout — **do not add npm dependencies**
+  (the registry here is extremely slow); if you think you need one, ask the lead.
+- Each worktree has its own `data/fathom.db` (`npm run seed` takes ~2 s from `seed-cache/`).
+- Commit **only your own files** (`git add <paths>`, never `git add -A`), push your branch
+  incrementally (`git push -u origin agent-<x>`), and append to `.agent-logs/`.
+- `./scripts/deploy.sh` is flock-protected: builds + deploys from *your* worktree, smoke
+  tests locally, health checks remotely and rolls back automatically. Deploys queue, so
+  deploy at milestones, not after every edit.
