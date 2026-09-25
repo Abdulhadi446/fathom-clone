@@ -39,6 +39,7 @@ export default function ClipPlayer({ audioSrc, startTime, endTime, durationSecon
   const [playing, setPlaying] = useState(false);
   const [needsGesture, setNeedsGesture] = useState(false);
   const [muted, setMuted] = useState(false);
+  const [stopArmed, setStopArmed] = useState(true);
   const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
@@ -99,6 +100,7 @@ export default function ClipPlayer({ audioSrc, startTime, endTime, durationSecon
       const clamped = Math.max(0, Math.min(time, durationSeconds));
       if (clamped < startTime - 0.25 || clamped > endTime + 0.25) {
         autoStopRef.current = false; // exploring outside the clip range
+        setStopArmed(false);
       }
       audio.currentTime = clamped;
       setCurrent(clamped);
@@ -127,6 +129,7 @@ export default function ClipPlayer({ audioSrc, startTime, endTime, durationSecon
     if (audio.paused) {
       if (audio.currentTime >= endTime - 0.05 || audio.ended) {
         autoStopRef.current = true;
+        setStopArmed(true);
         audio.currentTime = startTime;
         setCurrent(startTime);
       }
@@ -143,6 +146,7 @@ export default function ClipPlayer({ audioSrc, startTime, endTime, durationSecon
     const audio = audioRef.current;
     if (!audio) return;
     autoStopRef.current = true;
+    setStopArmed(true);
     audio.currentTime = startTime;
     setCurrent(startTime);
     void audio.play().then(
@@ -157,7 +161,10 @@ export default function ClipPlayer({ audioSrc, startTime, endTime, durationSecon
     const rect = element.getBoundingClientRect();
     const ratio = Math.max(0, Math.min((clientX - rect.left) / rect.width, 1));
     const time = ratio * durationSeconds;
-    if (time < startTime - 0.25 || time > endTime + 0.25) autoStopRef.current = false;
+    if (time < startTime - 0.25 || time > endTime + 0.25) {
+      autoStopRef.current = false;
+      setStopArmed(false);
+    }
     audio.currentTime = time;
     setCurrent(time);
   }
@@ -206,7 +213,10 @@ export default function ClipPlayer({ audioSrc, startTime, endTime, durationSecon
                 e.preventDefault();
                 const delta = e.key === "ArrowRight" ? 5 : -5;
                 const time = Math.max(0, Math.min(audio.currentTime + delta, durationSeconds));
-                if (time < startTime - 0.25 || time > endTime + 0.25) autoStopRef.current = false;
+                if (time < startTime - 0.25 || time > endTime + 0.25) {
+                  autoStopRef.current = false;
+                  setStopArmed(false);
+                }
                 audio.currentTime = time;
                 setCurrent(time);
               }
@@ -264,6 +274,11 @@ export default function ClipPlayer({ audioSrc, startTime, endTime, durationSecon
           >
             autoplay started muted — tap for sound
           </button>
+        )}
+        {!stopArmed && (
+          <span className="text-amber-400/90">
+            exploring past the clip — ⟲ replay re-arms the auto-stop
+          </span>
         )}
         {needsGesture && (
           <span className="text-amber-400/90">
