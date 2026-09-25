@@ -82,20 +82,28 @@ export default async function HomePage({
               {stats.openActionItems} open action items
             </p>
           </div>
-          <div className="flex items-center gap-1 rounded-lg border border-neutral-800 bg-neutral-950/60 p-1">
-            {SORTS.map((s) => (
-              <Link
-                key={s.key}
-                href={sortHref(s.key)}
-                className={`rounded-md px-2.5 py-1 text-xs transition-colors ${
-                  sort === s.key
-                    ? "bg-neutral-800 text-white"
-                    : "text-neutral-500 hover:text-neutral-300"
-                }`}
-              >
-                {s.label}
-              </Link>
-            ))}
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 rounded-lg border border-neutral-800 bg-neutral-950/60 p-1">
+              {SORTS.map((s) => (
+                <Link
+                  key={s.key}
+                  href={sortHref(s.key)}
+                  className={`rounded-md px-2.5 py-1 text-xs transition-colors ${
+                    sort === s.key
+                      ? "bg-neutral-800 text-white"
+                      : "text-neutral-500 hover:text-neutral-300"
+                  }`}
+                >
+                  {s.label}
+                </Link>
+              ))}
+            </div>
+            <Link
+              href="/meetings"
+              className="rounded-lg border border-neutral-800 bg-neutral-950/60 px-2.5 py-1.5 text-xs text-neutral-500 transition-colors hover:text-neutral-300"
+            >
+              Table view
+            </Link>
           </div>
         </div>
 
