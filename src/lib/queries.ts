@@ -206,3 +206,81 @@ function excerptAround(text: string, needle: string, radius = 90): string {
   const end = Math.min(flat.length, idx + needle.length + radius);
   return `${start > 0 ? "…" : ""}${flat.slice(start, end)}${end < flat.length ? "…" : ""}`;
 }
+
+/* ------------------------------------------------------------------ *
+ * Dashboard helpers (appended by agent B — additive only)
+ * ------------------------------------------------------------------ */
+
+export interface DashboardStats {
+  meetingCount: number;
+  totalDurationSeconds: number;
+  meetingsThisWeek: number;
+  segmentCount: number;
+  highlightCount: number;
+  openActionItems: number;
+}
+
+/** Aggregate numbers for the dashboard stats strip. */
+export function getDashboardStats(): DashboardStats {
+  const all = listMeetings();
+  const weekAgo = Date.now() - 7 * 86_400_000;
+  let totalDurationSeconds = 0;
+  let meetingsThisWeek = 0;
+  for (const m of all) {
+    totalDurationSeconds += m.durationSeconds;
+    if (m.startedAt.getTime() >= weekAgo) meetingsThisWeek += 1;
+  }
+  const segmentCount = db.select().from(transcriptSegments).all().length;
+  const highlightCount = db.select().from(highlights).all().length;
+  const openActionItems = db
+    .select()
+    .from(actionItems)
+    .where(eq(actionItems.done, false))
+    .all().length;
+  return {
+    meetingCount: all.length,
+    totalDurationSeconds,
+    meetingsThisWeek,
+    segmentCount,
+    highlightCount,
+    openActionItems,
+  };
+}
+
+export interface MeetingExtras {
+  meetingId: string;
+  templates: string[];
+  actionItemCount: number;
+  openActionItemCount: number;
+}
+
+/** Per-meeting summary templates + action-item counts (meeting-type badge + row meta). */
+export function listMeetingExtras(): MeetingExtras[] {
+  const summaryRows = db.select().from(summaries).all();
+  const itemRows = db.select().from(actionItems).all();
+
+  const templates = new Map<string, Set<string>>();
+  for (const s of summaryRows) {
+    const set = templates.get(s.meetingId) ?? new Set<string>();
+    set.add(s.template);
+    templates.set(s.meetingId, set);
+  }
+  const counts = new Map<string, { total: number; open: number }>();
+  for (const a of itemRows) {
+    const cur = counts.get(a.meetingId) ?? { total: 0, open: 0 };
+    cur.total += 1;
+    if (!a.done) cur.open += 1;
+    counts.set(a.meetingId, cur);
+  }
+
+  const ids = new Set([...templates.keys(), ...counts.keys()]);
+  return [...ids].map((meetingId) => {
+    const c = counts.get(meetingId) ?? { total: 0, open: 0 };
+    return {
+      meetingId,
+      templates: [...(templates.get(meetingId) ?? [])].sort(),
+      actionItemCount: c.total,
+      openActionItemCount: c.open,
+    };
+  });
+}
