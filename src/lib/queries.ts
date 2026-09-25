@@ -6,6 +6,7 @@ import {
   meetings,
   summaries,
   transcriptSegments,
+  users,
 } from "../db/schema";
 
 export function snippetFor(content: string, max = 220): string {
@@ -283,4 +284,30 @@ export function listMeetingExtras(): MeetingExtras[] {
       openActionItemCount: c.open,
     };
   });
+}
+
+// ---------------------------------------------------------------------------
+// Demo user (agent D — calendar stub + demo-mode ingest)
+// ---------------------------------------------------------------------------
+
+export const DEMO_USER_ID = "u_demo_alex";
+
+/**
+ * The single demo row (Alex Rivera) that the calendar stub writes
+ * `calendar_provider` / `calendar_connected` onto and that demo-mode ingest
+ * attaches new meetings to. Created on first use so a fresh DB still works.
+ */
+export function ensureDemoUser() {
+  const existing = db.select().from(users).where(eq(users.id, DEMO_USER_ID)).get();
+  if (existing) return existing;
+  db.insert(users)
+    .values({
+      id: DEMO_USER_ID,
+      name: "Alex Rivera",
+      email: "alex@example.com",
+      calendarProvider: null,
+      calendarConnected: false,
+    })
+    .run();
+  return db.select().from(users).where(eq(users.id, DEMO_USER_ID)).get()!;
 }
