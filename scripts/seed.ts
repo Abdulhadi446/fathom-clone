@@ -72,13 +72,13 @@ const SPECS: MeetingSpec[] = [
     templates: ["standard", "sales-call", "exec-brief"],
     highlights: [
       {
-        start: 742,
-        end: 786,
-        note: "Rachel names the real problem — notes never make it into the CRM",
+        start: 248,
+        end: 300,
+        note: "Rachel: notes live in spreadsheets — syncing them into Salesforce is the must-have",
         shareSlug: "acme-crm-pain",
         isPublic: true,
       },
-      { start: 1655, end: 1701, note: "Samir asks the pricing question; Dana gives per-seat range" },
+      { start: 1645, end: 1712, note: "Per-seat pricing and volume discounts answer the budget question" },
     ],
   },
   {
@@ -101,7 +101,7 @@ const SPECS: MeetingSpec[] = [
     targetLines: 55,
     chunkSeconds: 450,
     templates: ["standard", "standup", "decisions"],
-    highlights: [{ start: 310, end: 352, note: "Sam flags the transcription worker flakiness" }],
+    highlights: [{ start: 95, end: 126, note: "Marcus flags the flaky transcription worker" }],
   },
   {
     id: "m_interview_nina",
@@ -120,8 +120,8 @@ const SPECS: MeetingSpec[] = [
     targetLines: 190,
     templates: ["standard", "interview", "exec-brief"],
     highlights: [
-      { start: 1180, end: 1233, note: "Nina's multi-tenant isolation design answer" },
-      { start: 2740, end: 2788, note: "Nina asks about on-call — signal of serious intent" },
+      { start: 0, end: 72, note: "System design: multi-tenant ingestion and per-tenant isolation" },
+      { start: 228, end: 274, note: "Noisy-neighbour question — rate limits and resource quotas" },
     ],
   },
   {
@@ -156,12 +156,12 @@ const SPECS: MeetingSpec[] = [
     chunkSeconds: 700,
     templates: ["standard", "decisions", "exec-brief"],
     highlights: [
-      { start: 415, end: 468, note: "Grace makes the case that clip sharing is the growth loop" },
-      { start: 1520, end: 1577, note: "Storage cost debate — Sam's number lands badly" },
+      { start: 54, end: 72, note: "Sam raises storage cost growth in planning" },
+      { start: 73, end: 120, note: "Grace: public clip-sharing is the differentiator — top asks agree" },
       {
-        start: 3110,
-        end: 3175,
-        note: "The actual Q4 commitment list is read back and agreed",
+        start: 3100,
+        end: 3182,
+        note: "Closing commitments: search quality, sharing mockups, feasibility guardrail",
         shareSlug: "q4-roadmap-lock",
         isPublic: true,
       },
@@ -186,8 +186,14 @@ const SPECS: MeetingSpec[] = [
     targetLines: 125,
     templates: ["standard", "sales-call", "exec-brief"],
     highlights: [
-      { start: 590, end: 640, note: "Chika shows the 71% seat-usage number" },
-      { start: 1490, end: 1545, note: "Leo makes SSO a hard gate for expansion", shareSlug: "northwind-sso-gate", isPublic: true },
+      { start: 710, end: 766, note: "Chika: usage at 71% of seats — room to grow, Leo wants security closed" },
+      {
+        start: 1475,
+        end: 1556,
+        note: "Expansion is gated on SSO — Leo commits to pushing reviews faster",
+        shareSlug: "northwind-sso-gate",
+        isPublic: true,
+      },
     ],
   },
   {
@@ -205,7 +211,7 @@ const SPECS: MeetingSpec[] = [
       "Recurring weekly 1:1. Topics: Marcus's context switching between two projects, the tech-debt he wants to pay down, a possible staff-engineer track conversation, and his PTO next month.",
     targetLines: 105,
     templates: ["standard", "exec-brief"],
-    highlights: [{ start: 1010, end: 1062, note: "Marcus asks for ownership of the ingest platform" }],
+    highlights: [{ start: 1405, end: 1478, note: "Marcus asks to own the platform, and raises the staff track" }],
   },
   {
     id: "m_eng_all_hands",
@@ -227,7 +233,7 @@ const SPECS: MeetingSpec[] = [
       "Monthly engineering all-hands. Agenda: September metrics, platform reliability, search experiment results, transcript UI demo, customer escalations, hiring plan, and open floor.",
     targetLines: 145,
     templates: ["standard", "exec-brief", "decisions"],
-    highlights: [{ start: 880, end: 930, note: "Sam's incident retrospective — one missed page" }],
+    highlights: [{ start: 1180, end: 1240, note: "Incident retrospective — Grace asks how to prevent repeats" }],
   },
   {
     id: "m_design_review_onboarding",
@@ -247,7 +253,7 @@ const SPECS: MeetingSpec[] = [
       "Review of a 3-screen mobile onboarding flow replacing a 7-screen wizard. Open questions: whether calendar connect is step 1 or optional step 3, analytics events, and dark-mode support at launch.",
     targetLines: 90,
     templates: ["standard", "exec-brief"],
-    highlights: [{ start: 640, end: 690, note: "Noah cuts scope — calendar connect moves to step 3" }],
+    highlights: [{ start: 368, end: 408, note: "Scope call: where calendar connect sits in onboarding" }],
   },
 ];
 
@@ -363,6 +369,58 @@ function ensureAudio(spec: MeetingSpec): string {
   }
 }
 
+/**
+ * The LLM authors a transcript one time-window at a time and does not always
+ * fill the whole window, which leaves dead air between chunks (and highlights
+ * that land in the gap). Re-map each window linearly so every chunk spans its
+ * full range: the transcript then covers the meeting start-to-finish.
+ * Deterministic and idempotent — safe to run on cached or fresh generations.
+ */
+function windowBounds(spec: MeetingSpec): number[] {
+  const chunkSeconds = spec.chunkSeconds ?? Math.min(900, Math.max(600, spec.durationSeconds));
+  const chunks = Math.max(1, Math.ceil(spec.durationSeconds / chunkSeconds));
+  return Array.from({ length: chunks + 1 }, (_, i) =>
+    Math.max(0, Math.min(spec.durationSeconds, Math.floor(i * (spec.durationSeconds / chunks)))),
+  );
+}
+
+function fillWindows(spec: MeetingSpec, segments: TranscriptLine[]): TranscriptLine[] {
+  const bounds = windowBounds(spec);
+  const windows = bounds.length - 1;
+  const groups: TranscriptLine[][] = Array.from({ length: windows }, () => []);
+
+  for (const seg of segments) {
+    let idx = windows - 1;
+    for (let i = 0; i < windows; i++) {
+      if (seg.startTime >= bounds[i] && seg.startTime < bounds[i + 1]) {
+        idx = i;
+        break;
+      }
+    }
+    groups[idx].push(seg);
+  }
+
+  const out: TranscriptLine[] = [];
+  groups.forEach((group, i) => {
+    if (group.length === 0) return;
+    const ws = bounds[i];
+    const we = bounds[i + 1];
+    const minStart = Math.min(...group.map((g) => g.startTime));
+    const maxEnd = Math.max(...group.map((g) => g.endTime));
+    const span = maxEnd - minStart;
+    const scale = span > 0 ? (we - ws) / span : 1;
+    for (const seg of group) {
+      let start = span > 0 ? ws + (seg.startTime - minStart) * scale : ws;
+      let end = span > 0 ? ws + (seg.endTime - minStart) * scale : Math.min(we, ws + 8);
+      start = Math.min(Math.max(start, 0), spec.durationSeconds);
+      end = Math.min(Math.max(end, start + 1), spec.durationSeconds);
+      out.push({ ...seg, startTime: start, endTime: end });
+    }
+  });
+
+  return out.sort((a, b) => a.startTime - b.startTime);
+}
+
 function idFor(prefix: string, i: number, meetingId: string) {
   return `${prefix}_${meetingId}_${i}`;
 }
@@ -419,7 +477,9 @@ async function main() {
     cached.promptVersion = SUMMARY_PROMPT_VERSION;
     writeCache(spec.id, cached);
 
-    const { segments, summaries: summaryRows } = cached;
+    const summariesRowsIn = cached.summaries;
+    const segments = fillWindows(spec, cached.segments);
+    const summaryRows = summariesRowsIn;
     const startedAtMs = new Date(spec.startedAt).getTime();
 
     db.delete(highlights).where(eq(highlights.meetingId, spec.id)).run();
