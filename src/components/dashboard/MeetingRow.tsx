@@ -76,9 +76,9 @@ export default function MeetingRow({
           >
             {type.label}
           </span>
-          {meeting.source === "demo" && (
+          {meeting.source === "transcript" && (
             <span className="shrink-0 rounded-full border border-neutral-700 bg-neutral-900 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-neutral-400">
-              demo
+              imported
             </span>
           )}
         </div>

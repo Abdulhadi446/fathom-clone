@@ -7,9 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "seed": "tsx scripts/seed.ts",
-    "seed:refresh": "tsx scripts/seed.ts --force",
-    "db:reset": "tsx scripts/seed.ts --reset",
+    "db:reset": "tsx scripts/new-db.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

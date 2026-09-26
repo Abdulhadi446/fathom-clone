@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { searchAll } from "@/lib/queries";
 import { hitHref } from "@/components/dashboard/hits";
+import { withUser } from "@/lib/auth-http";
 
 export const dynamic = "force-dynamic";
 
@@ -19,12 +20,15 @@ export async function GET(req: NextRequest) {
     ? Math.min(Math.max(Math.trunc(rawLimit), 1), 60)
     : 60;
 
+  const user = await withUser();
+  if (user instanceof NextResponse) return user;
+
   if (q.length < 2) {
     return NextResponse.json({ query: q, count: 0, hits: [] });
   }
 
   try {
-    const hits = searchAll(q, limit).map((h) => ({
+    const hits = searchAll(user.id, q, limit).map((h) => ({
       kind: h.kind,
       meetingId: h.meetingId,
       meetingTitle: h.meetingTitle,

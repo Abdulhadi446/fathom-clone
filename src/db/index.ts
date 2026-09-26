@@ -4,8 +4,8 @@ import Database from "better-sqlite3";
 import { drizzle, type BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import * as schema from "./schema";
 
-export const DATABASE_PATH =
-  process.env.DATABASE_PATH ?? path.join(process.cwd(), "data", "fathom.db");
+export { DATABASE_PATH } from "../lib/db-path";
+import { DATABASE_PATH } from "../lib/db-path";
 
 const DDL = `
 CREATE TABLE IF NOT EXISTS "User" (
@@ -81,7 +81,7 @@ const COLUMN_MIGRATIONS: { table: string; column: string; ddl: string }[] = [
   { table: "Meeting", column: "audio_path", ddl: 'ALTER TABLE "Meeting" ADD COLUMN "audio_path" TEXT' },
 ];
 
-function migrateColumns(sqlite: Database.Database): void {
+function migrateColumns(sqlite: InstanceType<typeof Database>): void {
   const existing = new Map<string, Set<string>>();
   for (const row of sqlite.prepare("SELECT name FROM sqlite_master WHERE type='table'").all() as {
     name: string;

@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { highlights } from "@/db/schema";
+import { highlights, meetings } from "@/db/schema";
 import { serializeHighlight, newShareSlug } from "../share";
+import { withUser } from "@/lib/auth-http";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +21,8 @@ const MAX_NOTE = 500;
  *   clearSlug      boolean         — drop the slug (implies isPublic: false)
  */
 export async function PATCH(request: Request, { params }: RouteContext) {
+  const user = await withUser();
+  if (user instanceof NextResponse) return user;
   const { id } = await params;
 
   let body: unknown;
@@ -35,10 +38,16 @@ export async function PATCH(request: Request, { params }: RouteContext) {
     clearSlug?: unknown;
   };
 
-  const existing = db.select().from(highlights).where(eq(highlights.id, id)).get();
-  if (!existing) {
+  const found = db
+    .select({ highlight: highlights, owner: meetings.userId })
+    .from(highlights)
+    .innerJoin(meetings, eq(highlights.meetingId, meetings.id))
+    .where(eq(highlights.id, id))
+    .get();
+  if (!found || found.owner !== user.id) {
     return NextResponse.json({ error: "highlight not found" }, { status: 404 });
   }
+  const existing = found.highlight;
 
   const patch: Partial<typeof highlights.$inferInsert> = {};
 
@@ -92,7 +101,18 @@ export async function PATCH(request: Request, { params }: RouteContext) {
 
 /** DELETE /api/highlights/[id] — remove a highlight (and any public clip). */
 export async function DELETE(_request: Request, { params }: RouteContext) {
+  const user = await withUser();
+  if (user instanceof NextResponse) return user;
   const { id } = await params;
+  const owned = db
+    .select({ id: highlights.id })
+    .from(highlights)
+    .innerJoin(meetings, eq(highlights.meetingId, meetings.id))
+    .where(and(eq(highlights.id, id), eq(meetings.userId, user.id)))
+    .get();
+  if (!owned) {
+    return NextResponse.json({ error: "highlight not found" }, { status: 404 });
+  }
   const deleted = db.delete(highlights).where(eq(highlights.id, id)).returning().get();
   if (!deleted) {
     return NextResponse.json({ error: "highlight not found" }, { status: 404 });

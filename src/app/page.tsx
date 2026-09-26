@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { getSessionUser } from "@/lib/auth";
 import {
   getDashboardStats,
   listMeetingExtras,
@@ -59,9 +61,12 @@ export default async function HomePage({
   const sort: Sort =
     rawSort === "oldest" || rawSort === "longest" || rawSort === "people" ? rawSort : "newest";
 
-  const meetings = applySort(listMeetingsWithSnippet(), sort);
-  const extras = new Map(listMeetingExtras().map((e) => [e.meetingId, e]));
-  const stats = getDashboardStats();
+  const user = await getSessionUser();
+  if (!user) redirect("/login");
+
+  const meetings = applySort(listMeetingsWithSnippet(user.id), sort);
+  const extras = new Map(listMeetingExtras(user.id).map((e) => [e.meetingId, e]));
+  const stats = getDashboardStats(user.id);
 
   const statCards: Stat[] = [
     { label: "Meetings", value: String(stats.meetingCount), hint: "all time" },
@@ -119,8 +124,30 @@ export default async function HomePage({
           <MeetingRow key={m.id} meeting={m} extras={extras.get(m.id)} />
         ))}
         {meetings.length === 0 && (
-          <div className="rounded-xl border border-neutral-800/80 bg-neutral-950/60 px-5 py-10 text-center text-sm text-neutral-500">
-            No meetings yet — add one from the calendar or ingest page.
+          <div className="rounded-xl border border-neutral-800/80 bg-neutral-950/60 px-6 py-14 text-center">
+            <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-teal-400/10 text-lg text-teal-300 ring-1 ring-teal-400/30">
+              F
+            </div>
+            <h2 className="mt-4 text-base font-semibold text-white">No meetings yet</h2>
+            <p className="mx-auto mt-1.5 max-w-md text-sm text-neutral-500">
+              Record one in the browser, paste a transcript you already have, or drop in a
+              .vtt / .srt file. Summaries, action items, search and shareable clips follow
+              automatically.
+            </p>
+            <div className="mt-5 flex flex-wrap justify-center gap-2">
+              <Link
+                href="/ingest"
+                className="rounded-md bg-teal-500 px-3.5 py-2 text-sm font-semibold text-neutral-950 hover:bg-teal-400"
+              >
+                Add your first meeting
+              </Link>
+              <Link
+                href="/calendar"
+                className="rounded-md border border-neutral-700 px-3.5 py-2 text-sm text-neutral-300 hover:border-neutral-500"
+              >
+                Connect a calendar
+              </Link>
+            </div>
           </div>
         )}
       </section>

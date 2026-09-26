@@ -16,7 +16,7 @@ type Block =
   | { kind: "hr" };
 
 function parse(source: string): Block[] {
-  // Some seeded/LLM outputs wrap everything in a literal <markdown> fence.
+  // Some LLM outputs wrap everything in a literal <markdown> fence.
   const cleaned = source
     .replace(/<\/?markdown>/gi, "")
     .replace(/^\s*```\s*(?:markdown|md)\s*$/gim, "");

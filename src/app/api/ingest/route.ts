@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
+import crypto from "node:crypto";
 import { db } from "@/db";
 import { actionItems, meetings, summaries, transcriptSegments } from "@/db/schema";
-import { ensureDemoUser } from "@/lib/queries";
+import { withUser } from "@/lib/auth-http";
+import { removeMeetingAudio, saveMeetingAudio } from "@/lib/uploads";
 import {
   summarizeMeeting,
   type SummarizeResult,
@@ -12,13 +14,16 @@ import { parseTranscript } from "./parse";
 export const dynamic = "force-dynamic";
 
 /**
- * POST /api/ingest — demo-mode ingest (agent D).
+ * POST /api/ingest — bring a meeting in.
  *
- * The CAPTURE layer is simulated (the user pastes a transcript), the PROCESSING
- * layer is real: the same `summarizeMeeting()` used for the seeded meetings runs
- * here for the `standard` + `exec-brief` templates, and the resulting Meeting /
- * TranscriptSegment / Summary / ActionItem rows are indistinguishable from seed
- * data apart from `Meeting.source = "demo"`.
+ * Capture is real (pasted text, an uploaded .txt/.vtt/.srt file, or a transcript
+ * produced live in the browser while recording the microphone), processing is
+ * real: the shared `summarizeMeeting()` runs the `standard` + `exec-brief`
+ * templates and writes Meeting / TranscriptSegment / Summary / ActionItem rows
+ * owned by the signed-in user.
+ *
+ * Accepts JSON or multipart/form-data (multipart carries an `audio` File when
+ * the meeting was recorded in the browser).
  */
 
 const MAX_CHARS = 60_000;
@@ -30,6 +35,7 @@ interface IngestBody {
   transcript?: unknown;
   startedAt?: unknown;
   participants?: unknown;
+  audio?: File;
 }
 
 function bad(message: string) {
@@ -76,9 +82,29 @@ function mergeActionItems(results: SummarizeResult[]): string[] {
   return merged;
 }
 
+async function readBody(req: Request): Promise<IngestBody | null> {
+  const contentType = req.headers.get("content-type") ?? "";
+  if (contentType.includes("multipart/form-data")) {
+    const form = await req.formData().catch(() => null);
+    if (!form) return null;
+    const audio = form.get("audio");
+    return {
+      title: form.get("title"),
+      transcript: form.get("transcript"),
+      startedAt: form.get("startedAt"),
+      participants: form.get("participants"),
+      audio: audio instanceof File ? audio : undefined,
+    };
+  }
+  return (await req.json().catch(() => null)) as IngestBody | null;
+}
+
 export async function POST(req: Request) {
-  const body = (await req.json().catch(() => null)) as IngestBody | null;
-  if (!body) return bad("Expected a JSON body.");
+  const user = await withUser();
+  if (user instanceof NextResponse) return user;
+
+  const body = await readBody(req);
+  if (!body) return bad("Expected a JSON or multipart body.");
 
   const title = typeof body.title === "string" ? body.title.trim().slice(0, 200) : "";
   if (!title) return bad("Give the meeting a title.");
@@ -101,11 +127,16 @@ export async function POST(req: Request) {
   const startedAt = parseStartedAt(body.startedAt);
   const durationSeconds = Math.max(30, Math.ceil(segments[segments.length - 1].endTime));
 
-  const meetingId = `m_demo_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+  const meetingId = `m_${crypto.randomUUID().replace(/-/g, "").slice(0, 16)}`;
+
+  let audioPath: string | null = null;
+  if (body.audio && body.audio.size > 0) {
+    const saved = await saveMeetingAudio(meetingId, body.audio);
+    if (saved.ok) audioPath = saved.filename;
+    else return bad(saved.error);
+  }
 
   try {
-    const user = ensureDemoUser();
-
     db.insert(meetings)
       .values({
         id: meetingId,
@@ -113,8 +144,9 @@ export async function POST(req: Request) {
         startedAt,
         durationSeconds,
         participants: participantList,
-        source: "demo",
+        source: audioPath ? "recorded" : "transcript",
         userId: user.id,
+        audioPath,
       })
       .run();
 
@@ -206,6 +238,7 @@ export async function POST(req: Request) {
     });
   } catch (err) {
     console.error("[ingest] failed:", err);
+    if (audioPath) await removeMeetingAudio(audioPath);
     return NextResponse.json(
       { error: "Something went wrong creating the meeting — please try again." },
       { status: 500 },

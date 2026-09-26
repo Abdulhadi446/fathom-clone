@@ -56,8 +56,8 @@ mkdir -p "$STAGE/.next" "$STAGE/public"
 cp -a .next/static "$STAGE/.next/"
 cp -a public/. "$STAGE/public/"
 if [ ! -f data/fathom.db ]; then
-  echo "local database missing — run: npm run seed" >&2
-  exit 1
+  echo "  no local database yet — creating an empty one"
+  npx tsx scripts/new-db.ts
 fi
 
 log "local smoke test (standalone server)"
@@ -81,6 +81,11 @@ if [ "$SMOKE_OK" != "1" ]; then
   exit 1
 fi
 echo "  health OK"
+if ! curl -fsS --max-time 3 "http://127.0.0.1:$SMOKE_PORT/login" >/dev/null; then
+  echo "login page did not answer" >&2
+  exit 1
+fi
+echo "  login page OK"
 
 log "ship $RELEASE to $HOST"
 TARBALL="/tmp/fathom-$RELEASE.tar.gz"
@@ -89,7 +94,7 @@ scp -q "$TARBALL" "$HOST:/tmp/fathom-$RELEASE.tar.gz"
 
 scp -q "$ROOT/ops/fathom.service" "$HOST:/tmp/fathom.service"
 scp -q "$ROOT/ops/nginx-fathom.conf" "$HOST:/tmp/nginx-fathom.conf"
-scp -q "$ROOT/data/fathom.db" "$HOST:/tmp/fathom-seed.db"
+scp -q "$ROOT/data/fathom.db" "$HOST:/tmp/fathom-upload.db"
 
 log "install + restart remote"
 ssh -q "$HOST" "bash -s" <<REMOTE
@@ -104,7 +109,7 @@ rm -f "/tmp/fathom-$RELEASE.tar.gz"
 chmod +x "\$REL/server.js" 2>/dev/null || true
 
 if [ ! -f "$REMOTE_ROOT/data/fathom.db" ]; then
-  echo "  no remote db yet — will upload local seed db"
+  echo "  no remote db yet — will upload local database"
   NEED_DB=1
 else
   NEED_DB=0
@@ -146,9 +151,8 @@ for i in \$(seq 1 30); do
 done
 
 if [ "\$OK" = "1" ]; then
-  # the home page and the seeded data must also answer, not just /api/health
-  curl -fsS --max-time 5 "http://127.0.0.1:$APP_PORT/" >/dev/null 2>&1 || OK=0
-  curl -fsS --max-time 5 "http://127.0.0.1:$APP_PORT/api/meetings" 2>/dev/null | grep -q '"count":[1-9]' || OK=0
+  # the sign-in page must answer too (app routes are behind auth now)
+  curl -fsS --max-time 5 "http://127.0.0.1:$APP_PORT/login" >/dev/null 2>&1 || OK=0
 fi
 
 if [ "\$OK" != "1" ]; then
@@ -164,11 +168,11 @@ if [ "\$OK" != "1" ]; then
   exit 1
 fi
 
-# upload the seed db only when the server does not have one yet (or --fresh-db)
+# upload the local db only when the server does not have one yet (or --fresh-db)
 if [ "$FRESH_DB" = "1" ] || [ "\$NEED_DB" = "1" ]; then
   echo "  uploading database"
   sudo systemctl stop fathom || true
-  cp /tmp/fathom-seed.db "$REMOTE_ROOT/data/fathom.db"
+  cp /tmp/fathom-upload.db "$REMOTE_ROOT/data/fathom.db"
   rm -f "$REMOTE_ROOT/data/fathom.db-wal" "$REMOTE_ROOT/data/fathom.db-shm"
   sudo chown ubuntu:ubuntu "$REMOTE_ROOT/data/fathom.db"
   sudo systemctl start fathom
@@ -176,7 +180,7 @@ if [ "$FRESH_DB" = "1" ] || [ "\$NEED_DB" = "1" ]; then
   curl -fsS --max-time 5 "http://127.0.0.1:$APP_PORT/api/health" >/dev/null \
     || { echo "health failed after db upload" >&2; sudo journalctl -u fathom -n 40 --no-pager >&2; exit 1; }
 fi
-rm -f /tmp/fathom-seed.db
+rm -f /tmp/fathom-upload.db
 
 # prune old releases, keep the last 4
 ls -1dt $REMOTE_ROOT/releases/*/ 2>/dev/null | tail -n +5 | xargs -r rm -rf

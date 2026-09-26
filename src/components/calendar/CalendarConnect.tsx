@@ -119,7 +119,7 @@ export default function CalendarConnect({ initial }: { initial: InitialState }) 
             <div className="flex flex-wrap items-center gap-2">
               <h2 className="text-sm font-semibold text-white">Connecting to {active.name}</h2>
               <span className="rounded border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-amber-300">
-                Demo
+                Stub
               </span>
             </div>
             <p className="mt-0.5 text-xs text-neutral-500">
@@ -174,7 +174,7 @@ export default function CalendarConnect({ initial }: { initial: InitialState }) 
                 </span>
                 <span className="text-sm text-neutral-400">{active.name}</span>
                 <span className="rounded border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-amber-300">
-                  Demo
+                  Stub
                 </span>
               </div>
               <p className="mt-0.5 text-xs text-neutral-500">
@@ -214,8 +214,8 @@ export default function CalendarConnect({ initial }: { initial: InitialState }) 
           </div>
 
           <p className="mt-3 text-[11px] leading-relaxed text-neutral-600">
-            Stubbed for the demo: the handshake, scope request and event sync above are
-            simulated, and only the connection flag on the demo user row is persisted.
+            Stubbed: the handshake, scope request and event sync above are simulated, and only
+            the connection flag on your account is persisted.
           </p>
         </section>
         {error && <p className="text-sm text-red-400">{error}</p>}
@@ -254,10 +254,10 @@ export default function CalendarConnect({ initial }: { initial: InitialState }) 
 
       <p className="text-[11px] leading-relaxed text-neutral-600">
         <span className="mr-1.5 rounded border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-amber-300">
-          Demo
+          Stub
         </span>
         Connection is stubbed — no real OAuth flow or provider API calls. Connecting stores a
-        flag on the demo user so the rest of the app behaves as if the calendar were linked.
+        flag on your account so the rest of the app behaves as if the calendar were linked.
       </p>
       {error && <p className="text-sm text-red-400">{error}</p>}
     </div>

@@ -21,6 +21,8 @@ export interface MeetingViewProps {
   actionItems: ActionItemRow[];
   /** Deep link from search: `/meetings/[id]?t=<seconds>` — seek on load, no autoplay. */
   initialTimeSeconds?: number | null;
+  /** True when the meeting has a real audio file behind /api/audio/[id]. */
+  hasAudio?: boolean;
 }
 
 const RATES = [1, 1.25, 1.5, 2, 0.75];
@@ -53,6 +55,7 @@ export default function MeetingView({
   summaries,
   actionItems,
   initialTimeSeconds,
+  hasAudio = false,
 }: MeetingViewProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const timeRef = useRef(0);
@@ -64,7 +67,9 @@ export default function MeetingView({
   const [duration, setDuration] = useState(meeting.durationSeconds);
   const [playing, setPlaying] = useState(false);
   const [rate, setRate] = useState(1);
-  const [audioStatus, setAudioStatus] = useState<"loading" | "ready" | "failed">("loading");
+  const [audioStatus, setAudioStatus] = useState<"loading" | "ready" | "failed">(
+    hasAudio ? "loading" : "failed",
+  );
   const [seekToken, setSeekToken] = useState(0);
   const [selection, setSelection] = useState<LineSelection | null>(null);
   const [anchorIndex, setAnchorIndex] = useState<number | null>(null);
@@ -326,14 +331,17 @@ export default function MeetingView({
               }`}
             />
             <span className="truncate text-[11px] uppercase tracking-[0.14em] text-neutral-500">
-              Recording · {audioStatus === "loading" ? "loading" : playing ? "playing" : "paused"}
+              {hasAudio ? "Recording" : "Transcript timeline"} ·{" "}
+              {audioStatus === "loading" ? "loading" : playing ? "playing" : "paused"}
             </span>
           </div>
           <div className="flex shrink-0 items-center gap-2">
-            <span className="rounded-full border border-amber-400/30 bg-amber-400/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-amber-300">
-              Simulated recording
-            </span>
-            {audioFailed ? (
+            {!hasAudio && (
+              <span className="rounded-full border border-neutral-600/60 bg-neutral-800/60 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-neutral-400">
+                No audio attached
+              </span>
+            )}
+            {hasAudio && audioFailed ? (
               <span className="rounded-full border border-rose-400/30 bg-rose-400/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-rose-300">
                 Audio unavailable — virtual timeline
               </span>
@@ -406,10 +414,11 @@ export default function MeetingView({
           </button>
         </div>
 
-        <audio
-          ref={audioRef}
-          src={`/audio/${meeting.id}.m4a`}
-          preload="metadata"
+        {hasAudio && (
+          <audio
+            ref={audioRef}
+            src={`/api/audio/${meeting.id}`}
+            preload="metadata"
           onLoadedMetadata={(event) => {
             const audio = event.currentTarget;
             const meta = audio.duration;
@@ -435,8 +444,9 @@ export default function MeetingView({
           onTimeUpdate={(event) => {
             if (!audioFailed) setTime(event.currentTarget.currentTime);
           }}
-          className="hidden"
-        />
+            className="hidden"
+          />
+        )}
       </section>
 
       {/* --- highlight tools (agent C contract) --------------------------- */}

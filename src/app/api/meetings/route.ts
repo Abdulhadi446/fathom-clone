@@ -1,15 +1,18 @@
 import { NextResponse } from "next/server";
 import { listMeetingsWithSnippet } from "@/lib/queries";
+import { withUser } from "@/lib/auth-http";
 
 export const dynamic = "force-dynamic";
 
 /**
- * GET /api/meetings — foundation read endpoint.
- * Returns every meeting newest-first with a summary snippet + counts.
+ * GET /api/meetings — read endpoint for the signed-in user.
+ * Returns *their* meetings newest-first with a summary snippet + counts.
  * Owner: foundation. Subagent B may extend; do not break the shape.
  */
 export async function GET() {
-  const rows = listMeetingsWithSnippet().map((m) => ({
+  const user = await withUser();
+  if (user instanceof NextResponse) return user;
+  const rows = listMeetingsWithSnippet(user.id).map((m) => ({
     id: m.id,
     title: m.title,
     startedAt: m.startedAt.toISOString(),

@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 
 const LINKS = [
   { href: "/", label: "Meetings" },
@@ -9,8 +10,36 @@ const LINKS = [
   { href: "/ingest", label: "Add meeting" },
 ];
 
-export default function Nav() {
+export interface NavUser {
+  name: string;
+  email: string;
+}
+
+function initialsOf(name: string, email: string) {
+  const fromName = name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
+  return fromName || email.slice(0, 2).toUpperCase();
+}
+
+export default function Nav({ user }: { user: NavUser | null }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+
+  async function signOut() {
+    setBusy(true);
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } finally {
+      setBusy(false);
+      router.replace("/login");
+      router.refresh();
+    }
+  }
 
   return (
     <header className="sticky top-0 z-40 border-b border-neutral-800/80 bg-[#0a0a0b]/90 backdrop-blur">
@@ -22,33 +51,57 @@ export default function Nav() {
           Fathom
         </Link>
 
-        <nav className="flex items-center gap-1">
-          {LINKS.map((link) => {
-            const active =
-              link.href === "/" ? pathname === "/" || pathname.startsWith("/meetings") : pathname.startsWith(link.href);
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`rounded-md px-3 py-1.5 text-sm transition-colors ${
-                  active
-                    ? "bg-neutral-800 text-white"
-                    : "text-neutral-400 hover:bg-neutral-900 hover:text-neutral-200"
-                }`}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
-        </nav>
+        {user && (
+          <nav className="flex items-center gap-1">
+            {LINKS.map((link) => {
+              const active =
+                link.href === "/"
+                  ? pathname === "/" || pathname.startsWith("/meetings")
+                  : pathname.startsWith(link.href);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`rounded-md px-3 py-1.5 text-sm transition-colors ${
+                    active
+                      ? "bg-neutral-800 text-white"
+                      : "text-neutral-400 hover:bg-neutral-900 hover:text-neutral-200"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+          </nav>
+        )}
 
         <div className="ml-auto flex items-center gap-3">
-          <span className="hidden text-xs text-neutral-500 sm:inline">
-            demo workspace · seeded data
-          </span>
-          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-neutral-800 text-[11px] font-medium text-neutral-300">
-            AR
-          </div>
+          {user ? (
+            <>
+              <div className="hidden text-right text-xs leading-tight sm:block">
+                <div className="text-neutral-300">{user.name}</div>
+                <div className="text-neutral-600">{user.email}</div>
+              </div>
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-teal-500/15 text-[11px] font-semibold text-teal-200 ring-1 ring-teal-400/30">
+                {initialsOf(user.name, user.email)}
+              </div>
+              <button
+                type="button"
+                onClick={signOut}
+                disabled={busy}
+                className="rounded-md border border-neutral-700 px-2.5 py-1 text-xs text-neutral-400 transition hover:border-neutral-500 hover:text-neutral-200 disabled:opacity-60"
+              >
+                {busy ? "…" : "Sign out"}
+              </button>
+            </>
+          ) : (
+            <Link
+              href="/login"
+              className="rounded-md bg-teal-500 px-3 py-1.5 text-xs font-semibold text-neutral-950 hover:bg-teal-400"
+            >
+              Sign in
+            </Link>
+          )}
         </div>
       </div>
     </header>

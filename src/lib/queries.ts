@@ -1,4 +1,4 @@
-import { asc, desc, eq, like } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, like } from "drizzle-orm";
 import { db } from "../db";
 import {
   actionItems,
@@ -6,7 +6,6 @@ import {
   meetings,
   summaries,
   transcriptSegments,
-  users,
 } from "../db/schema";
 
 export function snippetFor(content: string, max = 220): string {
@@ -18,17 +17,32 @@ export function snippetFor(content: string, max = 220): string {
   return plain.length <= max ? plain : `${plain.slice(0, max - 1).trimEnd()}…`;
 }
 
-/** All meetings, newest first, with a one-line summary snippet from the primary Summary row. */
-export function listMeetings(): (typeof meetings.$inferSelect)[] {
+/**
+ * A user's meetings, newest first.
+ * Every read in the app goes through here or `getOwnedMeeting` — meeting data
+ * is never exposed without an owning account.
+ */
+export function listMeetings(userId: string): (typeof meetings.$inferSelect)[] {
   return db
     .select()
     .from(meetings)
+    .where(eq(meetings.userId, userId))
     .orderBy(desc(meetings.startedAt))
     .all();
 }
 
+/** Unscoped lookup — only for paths that are public by design (`/clip/<slug>`). */
 export function getMeeting(id: string) {
   return db.select().from(meetings).where(eq(meetings.id, id)).get();
+}
+
+/** Ownership-checked lookup: returns null unless the meeting belongs to `userId`. */
+export function getOwnedMeeting(id: string, userId: string) {
+  return db
+    .select()
+    .from(meetings)
+    .where(and(eq(meetings.id, id), eq(meetings.userId, userId)))
+    .get();
 }
 
 export function getSegments(meetingId: string) {
@@ -80,8 +94,8 @@ export interface MeetingWithSnippet extends MeetingRow {
 }
 
 /** Meetings with snippet + counts in a handful of queries (dashboard + search). */
-export function listMeetingsWithSnippet(): MeetingWithSnippet[] {
-  const all = listMeetings();
+export function listMeetingsWithSnippet(userId: string): MeetingWithSnippet[] {
+  const all = listMeetings(userId);
   const summaryRows = db.select().from(summaries).all();
   const segmentCounts = db
     .select({ meetingId: transcriptSegments.meetingId, n: transcriptSegments.id })
@@ -129,7 +143,7 @@ function escapeLike(value: string): string {
 }
 
 /** Cross-meeting search over titles, transcript text and summary content. */
-export function searchAll(query: string, limit = 60): SearchHit[] {
+export function searchAll(userId: string, query: string, limit = 60): SearchHit[] {
   const q = query.trim();
   if (q.length < 2) return [];
   const pattern = `%${escapeLike(q)}%`;
@@ -138,7 +152,7 @@ export function searchAll(query: string, limit = 60): SearchHit[] {
   const titleHits = db
     .select()
     .from(meetings)
-    .where(like(meetings.title, pattern))
+    .where(and(eq(meetings.userId, userId), like(meetings.title, pattern)))
     .all();
   for (const m of titleHits) {
     hits.push({
@@ -158,7 +172,7 @@ export function searchAll(query: string, limit = 60): SearchHit[] {
     .orderBy(asc(transcriptSegments.startTime))
     .all();
 
-  const meetingById = new Map(listMeetings().map((m) => [m.id, m]));
+  const meetingById = new Map(listMeetings(userId).map((m) => [m.id, m]));
   const grouped = new Map<string, typeof transcriptHits>();
   for (const hit of transcriptHits) {
     const list = grouped.get(hit.meetingId) ?? [];
@@ -222,8 +236,9 @@ export interface DashboardStats {
 }
 
 /** Aggregate numbers for the dashboard stats strip. */
-export function getDashboardStats(): DashboardStats {
-  const all = listMeetings();
+export function getDashboardStats(userId: string): DashboardStats {
+  const all = listMeetings(userId);
+  const ownedIds = all.map((m) => m.id);
   const weekAgo = Date.now() - 7 * 86_400_000;
   let totalDurationSeconds = 0;
   let meetingsThisWeek = 0;
@@ -231,13 +246,23 @@ export function getDashboardStats(): DashboardStats {
     totalDurationSeconds += m.durationSeconds;
     if (m.startedAt.getTime() >= weekAgo) meetingsThisWeek += 1;
   }
-  const segmentCount = db.select().from(transcriptSegments).all().length;
-  const highlightCount = db.select().from(highlights).all().length;
-  const openActionItems = db
-    .select()
-    .from(actionItems)
-    .where(eq(actionItems.done, false))
-    .all().length;
+  const segmentCount = ownedIds.length
+    ? db
+        .select({ id: transcriptSegments.id })
+        .from(transcriptSegments)
+        .where(inArray(transcriptSegments.meetingId, ownedIds))
+        .all().length
+    : 0;
+  const highlightCount = ownedIds.length
+    ? db.select({ id: highlights.id }).from(highlights).where(inArray(highlights.meetingId, ownedIds)).all().length
+    : 0;
+  const openActionItems = ownedIds.length
+    ? db
+        .select({ id: actionItems.id })
+        .from(actionItems)
+        .where(and(eq(actionItems.done, false), inArray(actionItems.meetingId, ownedIds)))
+        .all().length
+    : 0;
   return {
     meetingCount: all.length,
     totalDurationSeconds,
@@ -256,9 +281,12 @@ export interface MeetingExtras {
 }
 
 /** Per-meeting summary templates + action-item counts (meeting-type badge + row meta). */
-export function listMeetingExtras(): MeetingExtras[] {
-  const summaryRows = db.select().from(summaries).all();
-  const itemRows = db.select().from(actionItems).all();
+export function listMeetingExtras(userId: string): MeetingExtras[] {
+  const owned = new Set(listMeetings(userId).map((m) => m.id));
+  if (owned.size === 0) return [];
+  const ownedIds = [...owned];
+  const summaryRows = db.select().from(summaries).where(inArray(summaries.meetingId, ownedIds)).all();
+  const itemRows = db.select().from(actionItems).where(inArray(actionItems.meetingId, ownedIds)).all();
 
   const templates = new Map<string, Set<string>>();
   for (const s of summaryRows) {
@@ -284,30 +312,4 @@ export function listMeetingExtras(): MeetingExtras[] {
       openActionItemCount: c.open,
     };
   });
-}
-
-// ---------------------------------------------------------------------------
-// Demo user (agent D — calendar stub + demo-mode ingest)
-// ---------------------------------------------------------------------------
-
-export const DEMO_USER_ID = "u_demo_alex";
-
-/**
- * The single demo row (Alex Rivera) that the calendar stub writes
- * `calendar_provider` / `calendar_connected` onto and that demo-mode ingest
- * attaches new meetings to. Created on first use so a fresh DB still works.
- */
-export function ensureDemoUser() {
-  const existing = db.select().from(users).where(eq(users.id, DEMO_USER_ID)).get();
-  if (existing) return existing;
-  db.insert(users)
-    .values({
-      id: DEMO_USER_ID,
-      name: "Alex Rivera",
-      email: "alex@example.com",
-      calendarProvider: null,
-      calendarConnected: false,
-    })
-    .run();
-  return db.select().from(users).where(eq(users.id, DEMO_USER_ID)).get()!;
 }

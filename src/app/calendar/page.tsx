@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 import CalendarConnect from "@/components/calendar/CalendarConnect";
-import { ensureDemoUser } from "@/lib/queries";
+import { getSessionUser } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -10,14 +12,15 @@ export const metadata: Metadata = {
 };
 
 /**
- * /calendar — calendar-connect STUB (agent D).
+ * /calendar — calendar-connect STUB.
  *
  * Read server-side so the connected state survives reloads: it lives on
- * `User.calendar_provider` / `User.calendar_connected` for the single demo user.
+ * `User.calendar_provider` / `User.calendar_connected` for the signed-in user.
  * No OAuth happens anywhere in this build — see src/app/api/calendar/route.ts.
  */
-export default function CalendarPage() {
-  const user = ensureDemoUser();
+export default async function CalendarPage() {
+  const user = await getSessionUser();
+  if (!user) redirect("/login");
 
   return (
     <main className="mx-auto w-full max-w-3xl py-10">
@@ -26,13 +29,15 @@ export default function CalendarPage() {
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-semibold tracking-tight text-white">Calendar</h1>
             <span className="rounded border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-amber-300">
-              Demo
+              Stub
             </span>
           </div>
           <p className="mt-1.5 max-w-xl text-sm text-neutral-500">
-            Link a provider so upcoming calls are detected, named and joined automatically.
-            The capture layer is stubbed in this build — the connect flow is simulated end to
-            end, and the resulting connection is stored on the demo user row.
+            Link a provider so upcoming calls could be detected, named and joined
+            automatically. This build does not talk to Google or Microsoft: the connect flow is
+            simulated end to end and only the connection flag on your account is persisted.
+            Real capture lives in{" "}
+            <Link href="/ingest" className="text-teal-300 hover:text-teal-200">/ingest</Link>.
           </p>
         </div>
         <div className="hidden shrink-0 text-right text-xs text-neutral-600 sm:block">

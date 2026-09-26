@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { actionItems } from "@/db/schema";
+import { getOwnedMeeting } from "@/lib/queries";
+import { withUser } from "@/lib/auth-http";
 
 export const dynamic = "force-dynamic";
 
@@ -21,9 +23,15 @@ interface PatchBody {
  * Every row must belong to the meeting in the URL — otherwise 404.
  */
 export async function PATCH(request: Request, { params }: RouteContext) {
+  const user = await withUser();
+  if (user instanceof NextResponse) return user;
+
   const { id: meetingId } = await params;
   if (!meetingId) {
     return NextResponse.json({ error: "meeting id is required" }, { status: 400 });
+  }
+  if (!getOwnedMeeting(meetingId, user.id)) {
+    return NextResponse.json({ error: "meeting not found" }, { status: 404 });
   }
 
   let body: PatchBody;

@@ -3,9 +3,8 @@ import { chatJSON, type ChatMessage } from "./llm";
 /**
  * THE shared summarization entry point.
  *
- * Used by:
- *   - scripts/seed.ts          (initial seeding)
- *   - subagent D's demo-mode ingest flow (POST /api/ingest)
+ * Used by the ingest pipeline (POST /api/ingest) — the only way meetings
+ * enter the system now that there is no seed data.
  *
  * Signature is stable — do not change it without updating ARCHITECTURE.md.
  */

@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { formatDateTime, formatDuration } from "@/lib/format";
-import { getActionItems, getMeeting, getSegments, getSummaries } from "@/lib/queries";
+import { getSessionUser } from "@/lib/auth";
+import { getActionItems, getOwnedMeeting, getSegments, getSummaries } from "@/lib/queries";
 import { TEMPLATES, templateLabel } from "@/lib/summarize";
 import MeetingView from "@/components/meeting/MeetingView";
 import { buildSpeakerColorMap, initials } from "@/components/meeting/speakerColors";
@@ -16,7 +17,8 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
-  const meeting = getMeeting(id);
+  const user = await getSessionUser();
+  const meeting = user ? getOwnedMeeting(id, user.id) : undefined;
   // Throw here (not only in the page body) so the response ships a real 404
   // status instead of streaming a 200 first.
   if (!meeting) notFound();
@@ -28,7 +30,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function MeetingDetailPage({ params, searchParams }: PageProps) {
   const { id } = await params;
-  const meeting = getMeeting(id);
+  const user = await getSessionUser();
+  if (!user) notFound();
+  const meeting = getOwnedMeeting(id, user.id);
   if (!meeting) notFound();
 
   // Deep link from agent B's search results: /meetings/[id]?t=<seconds>
@@ -98,7 +102,7 @@ export default async function MeetingDetailPage({ params, searchParams }: PagePr
               {segments.length} transcript line{segments.length === 1 ? "" : "s"}
             </span>
             <span className="rounded-full border border-neutral-700 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-neutral-400">
-              {meeting.source === "demo" ? "Demo ingest" : "Recorded"}
+              {meeting.source === "recorded" ? "Recorded" : "Imported transcript"}
             </span>
           </div>
         </div>
@@ -143,6 +147,7 @@ export default async function MeetingDetailPage({ params, searchParams }: PagePr
         summaries={summaries}
         actionItems={actionItems}
         initialTimeSeconds={initialTimeSeconds}
+        hasAudio={Boolean(meeting.audioPath)}
       />
     </main>
   );

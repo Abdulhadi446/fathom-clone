@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { eq, lt, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { sessions, users } from "@/db/schema";
+import { SESSION_COOKIE } from "@/lib/session-cookie";
 
 /**
  * Real email+password auth. No third-party service, no new dependencies:
@@ -15,7 +16,7 @@ import { sessions, users } from "@/db/schema";
  *   lifetime  -> SESSION_TTL_MS, refreshed on every read (sliding window)
  */
 
-export const SESSION_COOKIE = "fathom_session";
+export { SESSION_COOKIE };
 export const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 30; // 30 days
 
 const SCRYPT_N = 16384;

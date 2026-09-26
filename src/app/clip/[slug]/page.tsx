@@ -50,7 +50,7 @@ export default async function ClipPage({ params }: PageProps) {
   );
 
   // Lines covering the shared range; if the range sits in a transcript gap
-  // (seeded data has a couple), fall back to the closest conversation around it.
+  // (shared clips do), fall back to the closest conversation around it.
   const hasInRange = firstInRange >= 0 && lastInRange >= firstInRange;
   const contextBefore = hasInRange ? CONTEXT_BEFORE : 3;
   const contextAfter = hasInRange ? CONTEXT_AFTER : 4;

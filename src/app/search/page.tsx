@@ -1,3 +1,5 @@
+import { redirect } from "next/navigation";
+import { getSessionUser } from "@/lib/auth";
 import { searchAll } from "@/lib/queries";
 import SearchBox from "@/components/dashboard/SearchBox";
 import SearchResults from "@/components/dashboard/SearchResults";
@@ -13,9 +15,12 @@ export default async function SearchPage({
 }: {
   searchParams: Promise<{ q?: string }>;
 }) {
+  const user = await getSessionUser();
+  if (!user) redirect("/login");
+
   const { q = "" } = await searchParams;
   const query = q.trim();
-  const hits = query.length >= 2 ? searchAll(query) : [];
+  const hits = query.length >= 2 ? searchAll(user.id, query) : [];
 
   return (
     <main className="flex flex-col gap-6 py-8">

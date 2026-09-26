@@ -140,7 +140,7 @@ export default function IngestForm() {
           </span>
           <h2 className="text-base font-semibold text-white">Meeting created</h2>
           <span className="rounded border border-neutral-700 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wide text-neutral-400">
-            source: demo
+            imported
           </span>
         </div>
 
@@ -337,7 +337,7 @@ export default function IngestForm() {
               </li>
               <li>
                 <span className="text-neutral-400">2.</span> A Meeting row is written with{" "}
-                <span className="font-mono text-neutral-400">source = &quot;demo&quot;</span>.
+                <span className="font-mono text-neutral-400">source = &quot;transcript&quot;</span>.
               </li>
               <li>
                 <span className="text-neutral-400">3.</span> The shared{" "}
@@ -372,7 +372,7 @@ export default function IngestForm() {
         <p className="text-xs text-neutral-600">
           {submitting
             ? "Two templates are running through the shared summarizer — usually 5–20 s."
-            : "Real processing: 2 templates through the same summarizer as the seeded meetings."}
+            : "Real processing: 2 templates through the shared summarizer, in your account only."}
         </p>
       </div>
     </form>

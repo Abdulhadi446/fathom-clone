@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { db } from "@/db";
 import { highlights } from "@/db/schema";
-import { getHighlights, getMeeting, getSegments } from "@/lib/queries";
+import { getHighlights, getOwnedMeeting, getSegments } from "@/lib/queries";
+import { withUser } from "@/lib/auth-http";
 import { serializeHighlight } from "./share";
 
 export const dynamic = "force-dynamic";
@@ -12,9 +13,14 @@ export const dynamic = "force-dynamic";
  * earliest first. Used by HighlightBar to load its inline list.
  */
 export async function GET(request: Request) {
+  const user = await withUser();
+  if (user instanceof NextResponse) return user;
   const meetingId = new URL(request.url).searchParams.get("meetingId");
   if (!meetingId) {
     return NextResponse.json({ error: "meetingId is required" }, { status: 400 });
+  }
+  if (!getOwnedMeeting(meetingId, user.id)) {
+    return NextResponse.json({ error: "meeting not found" }, { status: 404 });
   }
   const rows = getHighlights(meetingId);
   return NextResponse.json({ highlights: rows.map(serializeHighlight) });
@@ -50,6 +56,8 @@ function excerptFromTranscript(meetingId: string, start: number, end: number, ma
  * trimmed transcript excerpt covering the range).
  */
 export async function POST(request: Request) {
+  const user = await withUser();
+  if (user instanceof NextResponse) return user;
   let body: unknown;
   try {
     body = await request.json();
@@ -67,7 +75,7 @@ export async function POST(request: Request) {
   if (typeof meetingId !== "string" || !meetingId) {
     return NextResponse.json({ error: "meetingId is required" }, { status: 400 });
   }
-  const meeting = getMeeting(meetingId);
+  const meeting = getOwnedMeeting(meetingId, user.id);
   if (!meeting) {
     return NextResponse.json({ error: "meeting not found" }, { status: 404 });
   }

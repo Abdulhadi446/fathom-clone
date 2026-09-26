@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { getSessionUser } from "@/lib/auth";
 import { listMeetingExtras, listMeetingsWithSnippet, type MeetingWithSnippet } from "@/lib/queries";
 import MeetingTable from "@/components/dashboard/MeetingTable";
 import SearchBox from "@/components/dashboard/SearchBox";
@@ -67,8 +69,11 @@ export default async function MeetingsPage({
       : "newest";
   const activePerson = (person ?? "").trim();
 
-  const extras = new Map(listMeetingExtras().map((e) => [e.meetingId, e]));
-  let rows = listMeetingsWithSnippet();
+  const user = await getSessionUser();
+  if (!user) redirect("/login");
+
+  const extras = new Map(listMeetingExtras(user.id).map((e) => [e.meetingId, e]));
+  let rows = listMeetingsWithSnippet(user.id);
 
   const counts = new Map<string, number>();
   for (const m of rows) {

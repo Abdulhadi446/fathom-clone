@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { users } from "@/db/schema";
-import { DEMO_USER_ID, ensureDemoUser } from "@/lib/queries";
+import { withUser } from "@/lib/auth-http";
+
 
 export const dynamic = "force-dynamic";
 
@@ -24,8 +25,13 @@ function isProvider(value: unknown): value is Provider {
   return typeof value === "string" && (PROVIDERS as readonly string[]).includes(value);
 }
 
-function currentState() {
-  const user = ensureDemoUser();
+function currentState(user: {
+  id: string;
+  name: string;
+  email: string;
+  calendarProvider: string | null;
+  calendarConnected: boolean;
+}) {
   return {
     provider: user.calendarProvider,
     connected: user.calendarConnected,
@@ -34,10 +40,14 @@ function currentState() {
 }
 
 export async function GET() {
-  return NextResponse.json(currentState());
+  const user = await withUser();
+  if (user instanceof NextResponse) return user;
+  return NextResponse.json(currentState(user));
 }
 
 export async function POST(req: Request) {
+  const sessionUser = await withUser();
+  if (sessionUser instanceof NextResponse) return sessionUser;
   const body = (await req.json().catch(() => null)) as {
     action?: unknown;
     provider?: unknown;
@@ -57,21 +67,19 @@ export async function POST(req: Request) {
         { status: 400 },
       );
     }
-    ensureDemoUser();
     db.update(users)
       .set({ calendarProvider: body.provider, calendarConnected: true })
-      .where(eq(users.id, DEMO_USER_ID))
+      .where(eq(users.id, sessionUser.id))
       .run();
-    return NextResponse.json(currentState());
+    return NextResponse.json(currentState({ ...sessionUser, calendarProvider: body.provider, calendarConnected: true }));
   }
 
   if (body.action === "disconnect") {
-    ensureDemoUser();
     db.update(users)
       .set({ calendarProvider: null, calendarConnected: false })
-      .where(eq(users.id, DEMO_USER_ID))
+      .where(eq(users.id, sessionUser.id))
       .run();
-    return NextResponse.json(currentState());
+    return NextResponse.json(currentState({ ...sessionUser, calendarProvider: null, calendarConnected: false }));
   }
 
   return NextResponse.json(
