@@ -105,36 +105,52 @@ const result = await summarizeMeeting(
 
 ---
 
-## Route ownership map
+## Route ownership map (final — all phases merged)
 
-Ownership is exclusive: never create, edit or rename a file owned by another agent.
-If you need something an owner owns, ask the lead instead.
+Ownership was exclusive during the build and is kept as the maintenance map: change files
+only inside your area, and coordinate through the lead before touching a frozen file.
 
 | Route / file | Owner | Notes |
 |---|---|---|
 | `src/db/schema.ts`, `src/db/index.ts` | **foundation (frozen)** | need a field? → flag the lead |
 | `src/lib/llm.ts`, `src/lib/summarize.ts`, `src/lib/transcript.ts` | **foundation (frozen)** | call, don't modify |
 | `src/lib/queries.ts`, `src/lib/format.ts` | foundation (read-mostly) | additive changes only, coordinate first |
-| `src/app/api/health`, `src/app/api/meetings` | foundation | |
+| `src/app/api/health`, `src/app/api/meetings` | foundation | `GET /api/meetings` supports `?q=` + `?limit=` |
 | `src/app/layout.tsx`, `src/components/Nav.tsx`, `src/app/globals.css` | **foundation (frozen)** | the app shell every page renders inside |
-| `src/components/highlights/HighlightBar.tsx` | **agent C** (contract set by lead) | agent A renders it in `/meetings/[id]` and passes `{meetingId, durationSeconds, currentTime, selection}`; C implements the body. Props shape is fixed — extend with optional props only |
-| `scripts/deploy.sh`, `ops/*` | foundation | everyone runs it, nobody edits it mid-run |
-| `src/app/page.tsx`, `src/app/meetings/page.tsx`, `src/app/api/search/**` | **agent B** | dashboard + list + cross-meeting search |
-| `src/app/meetings/[id]/**` | **agent A** | transcript player, summary tabs, action items |
-| `src/app/api/meetings/[id]/**` | **agent A** | PATCH action items, etc. |
-| `src/app/clip/[slug]/**`, `src/app/api/highlights/**` | **agent C** | highlight capture + public clip page |
-| `src/app/calendar/**`, `src/app/api/ingest/**`, ingest wizard UI files | **agent D** | calendar stub + demo-mode ingest |
+| `src/components/highlights/HighlightBar.tsx` | **agent C** (contract set by lead) | A renders it in `/meetings/[id]` passing `{meetingId, durationSeconds, currentTime, selection, onSeek?}` |
+| `scripts/deploy.sh`, `ops/*`, `scripts/seed.ts` | foundation | everyone runs them, nobody edits them mid-run |
+| `src/app/page.tsx`, `src/app/meetings/page.tsx`, `src/app/search/**`, `src/app/api/search/**` | **agent B** | dashboard, meetings table, cross-meeting search |
+| `src/components/dashboard/**` | **agent B** | `MeetingTable`, `MeetingRow`, `SearchBox`, `SearchResults`, `StatsStrip`, `HighlightMatch`, `hits.ts` |
+| `src/app/meetings/[id]/**`, `src/app/api/meetings/[id]/**` | **agent A** | transcript player, summary tabs, action items (`PATCH …/action-items`) |
+| `src/components/meeting/**` | **agent A** | `MeetingView`, `Transcript`, `SummaryPanel`, `ActionItems`, `ScrubBar`, `Markdown`, `formatClock`, `speakerColors` |
+| `src/app/clip/[slug]/**`, `src/app/api/highlights/**` | **agent C** | highlight capture, share toggle, public clip page |
+| `src/components/highlights/**`, `src/components/clip/**` | **agent C** | `HighlightBar`, `ClipPlayer`, `ClipTranscript`, `CopyLinkButton` |
+| `src/app/calendar/**`, `src/app/api/calendar/**` | **agent D** | calendar-provider stub (persists to `User.calendar_*`) |
+| `src/app/ingest/**`, `src/app/api/ingest/**` | **agent D** | paste/upload → real `summarizeMeeting()` → new meeting |
+| `src/components/calendar/**`, `src/components/ingest/**` | **agent D** | `CalendarConnect`, `ProviderMark`, `IngestForm`, `sample.ts` |
+
+### Cross-cutting contracts
+
+| Contract | From → to | Shape |
+|---|---|---|
+| Deep link with a timestamp | B → A | search hits link to `/meetings/[id]?t=<int seconds>`; A seeks the player on load |
+| Template deep link | B → A | `/meetings/[id]?template=<key>` pre-selects the summary tab |
+| Seek event | A ↔ C | `HighlightBar.onSeek(seconds)` plus `window.dispatchEvent(new CustomEvent("fathom:seek", {detail: seconds}))` |
+| Highlight capture | A → C | A owns selection state and renders `<HighlightBar>`; C owns create/share/delete and the `/api/highlights` routes |
+| Shared reads | lead → all | `src/lib/queries.ts` (`listMeetingsWithSnippet`, `searchAll`, `getHighlightBySlug`, …) |
 
 Shared UI conventions: dark, dense, neutral palette (Tailwind 4, no UI library).
-Every agent commits incrementally, appends to `.agent-logs/`, and redeploys with
-`./scripts/deploy.sh` — never leave work unpushed to the end.
 
 ---
 
-## Parallel build (Phase 2)
+## Parallel build (Phase 2 — complete, kept for reference)
 
-Four agents work at the same time. Each one gets an isolated **git worktree** on its own
-branch so nobody's edits collide:
+> **Status: done.** All four branches (`agent-a`…`agent-d`) were merged into `master`,
+> rebuilt, re-seeded and deployed. The worktrees below are historical — new work happens
+> in the main checkout on `master`.
+
+Four agents worked at the same time. Each one had an isolated **git worktree** on its own
+branch so nobody's edits collided:
 
 | agent | worktree | branch | dev port |
 |---|---|---|---|
@@ -143,7 +159,9 @@ branch so nobody's edits collide:
 | C sharing/highlights | `/home/abdulhadi/Projects/fathom-worktrees/agent-c` | `agent-c` | 3003 |
 | D stubs/ingest | `/home/abdulhadi/Projects/fathom-worktrees/agent-d` | `agent-d` | 3004 |
 
-- `node_modules` is a symlink to the main checkout — **do not add npm dependencies**
+- `node_modules` must be a *hardlink copy* of the main checkout (`rm node_modules && cp -al
+  /home/abdulhadi/Projects/project/node_modules node_modules`) — a symlink breaks the
+  standalone build. **Do not add npm dependencies**
   (the registry here is extremely slow); if you think you need one, ask the lead.
 - Each worktree has its own `data/fathom.db` (`npm run seed` takes ~2 s from `seed-cache/`).
 - Commit **only your own files** (`git add <paths>`, never `git add -A`), push your branch
