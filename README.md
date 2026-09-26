@@ -71,6 +71,35 @@ Flock-protected, keeps the previous release and rolls back automatically. Produc
 Cloudflare (TLS) → nginx :80 → systemd `fathom` (port 3100) → `/srv/fathom/current`, SQLite and
 audio uploads in `/srv/fathom/data/`, the transcription venv in `/srv/fathom/stt/`.
 
+## Test
+
+```bash
+./scripts/smoke.sh                                     # 114 black-box checks against the live site
+./scripts/smoke.sh http://127.0.0.1:3100               # …or any other deployment
+SMOKE_STT_WAV=/path/to/speech.wav ./scripts/smoke.sh   # + assert on-box transcription
+```
+
+The suite signs up two throwaway accounts, exercises signup/login/logout, isolation between
+accounts, ingest (transcript, audio, video), range-served audio, highlights and public clips,
+action items, search, calendar, email-link endpoints, change password, delete account and the
+credential rate limiter — then deletes both accounts. It exits non-zero on any failure.
+`./scripts/deploy.sh --smoke` runs it right after a deploy.
+
+## Operate
+
+| task | how |
+|---|---|
+| health | `curl https://tests.thetrillioniar.me/api/health` — counts, LLM/STT/mail status |
+| logs | `journalctl -u fathom -f` |
+| restart | `sudo systemctl restart fathom` |
+| rollback | redeploy the previous release (`/srv/fathom/releases/`, `.previous` symlink) |
+| backups | `/srv/fathom/ops/backup.sh` daily at 03:17 via `/etc/cron.d/fathom-backup` → `/srv/fathom/backups` (DB snapshot + uploads, 7 days kept) |
+| restore | `sudo systemctl stop fathom`, `gunzip -c backups/fathom-<stamp>.db.gz > data/fathom.db`, unpack `uploads-<stamp>.tgz` into `data/`, `sudo systemctl start fathom` |
+
+The service runs hardened (`NoNewPrivileges`, `PrivateTmp`, `ProtectHome`, `ProtectSystem=full`)
+and can only write under `/srv/fathom` and `/tmp`; the whisper model cache lives in
+`/srv/fathom/stt/hf-cache` (`HF_HOME`).
+
 ## Docs
 
 - `SCHEMA.md` — tables, constraints, how data enters the system

@@ -218,7 +218,8 @@ if [ -n "$STT_WAV" ] && [ "$STT_ON" = "1" ]; then
   check "response marks transcribed" "$(cond body_has '"transcribed":true')" "$BODY"
   STT_ID=$(body_id meetingId)
   req GET "/meetings/$STT_ID"
-  check "transcribed meeting shows timestamps" "$(cond body_has '\[0:0')" "got=$CODE"
+  # the page renders segment rows (data-i), not literal "[0:00]" prefixes
+  check "transcribed meeting renders transcript rows" "$(cond body_has 'data-i=')" "got=$CODE"
 elif [ "$STT_ON" = "1" ]; then
   note "STT available (set SMOKE_STT_WAV=<speech wav> to assert transcription)"
 else

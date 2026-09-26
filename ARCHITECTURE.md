@@ -68,6 +68,7 @@ summarizer so no screen is ever empty.
 
 ```bash
 ./scripts/deploy.sh              # typecheck → build → local smoke test → ship → remote health check
+./scripts/deploy.sh --smoke      # …then run scripts/smoke.sh against the deployed site
 ./scripts/deploy.sh --fresh-db   # also overwrite the live DB with the local one
 ```
 
@@ -88,6 +89,33 @@ TLS terminates at Cloudflare in front of the box; nginx trusts the forwarded
 `X-Forwarded-Proto`/`X-Forwarded-Host` so redirects stay on `https://` and the session cookie
 can be marked `Secure`. Email needs `RESEND_API_KEY` + `APP_URL`; transcription needs
 `/srv/fathom/stt` to exist — both are checked at deploy time.
+
+## Production hardening & verification
+
+**Transport / headers.** TLS terminates at Cloudflare; nginx adds the security headers to
+*every* response (including the middleware redirects it emits first) and the Next config
+repeats them for proxy-less runs: `X-Content-Type-Options`, `X-Frame-Options`,
+`Referrer-Policy`, `Permissions-Policy` (mic on for the recorder), COOP/CORP,
+`X-Robots-Tag: noindex`, and `Strict-Transport-Security` — HSTS is ignored over plain http,
+so direct-IP access keeps working while the domain gets pinned to https. `robots.txt`
+disallows the whole site: this is a private workspace.
+
+**Service.** `ops/fathom.service` runs with `NoNewPrivileges`, `PrivateTmp`,
+`ProtectHome`, `ProtectSystem=full`, kernel/namespace restrictions and a start-rate limit;
+it can only write under `/srv/fathom` and `/tmp`. `HOME`/`HF_HOME` point into
+`/srv/fathom/stt` so the whisper cache lives with the app instead of a home directory.
+A crash loop stops after 5 restarts in 2 minutes instead of spinning forever.
+
+**Backups.** `ops/backup.sh` (installed to `/srv/fathom/ops/`, cron
+`/etc/cron.d/fathom-backup`, daily 03:17) takes a consistent SQLite snapshot through
+better-sqlite3's online backup API, runs `PRAGMA integrity_check` first, tars
+`data/uploads/`, gzips and keeps 7 days in `/srv/fathom/backups`.
+
+**Verification.** `/api/health` reports row counts (single `COUNT(*)` queries), LLM config,
+`stt.available`, `mail.configured` and uptime — no secrets. `scripts/smoke.sh` is the
+end-to-end contract: ~114 black-box checks over HTTPS (auth, isolation, ingest, range-served
+audio, clips, action items, search, calendar, email-link endpoints, account deletion, rate
+limiting) that clean up after themselves; deploy runs it with `--smoke`.
 
 ## ★ The summarization function
 
