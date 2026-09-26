@@ -10,6 +10,19 @@ import { SESSION_COOKIE, isPublicPath } from "@/lib/session-cookie";
  * A forged or stale cookie therefore gets past the redirect and is rejected
  * with a 401/404 deeper in the stack.
  */
+/**
+ * The origin the *browser* should be pointed at. `request.url` reports the
+ * upstream address (127.0.0.1:3100 behind nginx), so prefer the headers the
+ * reverse proxy sets, then the raw Host header.
+ */
+function publicOrigin(request: NextRequest): string {
+  const forwardedHost = request.headers.get("x-forwarded-host");
+  const host = forwardedHost ?? request.headers.get("host");
+  const proto = request.headers.get("x-forwarded-proto") ?? "http";
+  if (host) return `${proto}://${host}`;
+  return request.nextUrl.origin;
+}
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -19,12 +32,11 @@ export function middleware(request: NextRequest) {
     if (pathname.startsWith("/api/")) {
       return NextResponse.json({ error: "Sign in required" }, { status: 401 });
     }
-    // Relative Location: behind nginx the request host is 127.0.0.1:3100, and
-    // an absolute redirect would send the browser there instead of the public URL.
-    return new NextResponse(null, {
-      status: 307,
-      headers: { Location: `/login?next=${encodeURIComponent(pathname)}` },
-    });
+    // Next validates Location with `new URL()`, so it must be absolute — but
+    // behind nginx `request.url` points at 127.0.0.1:3100. Rebuild the origin
+    // from the forwarded headers instead so the browser lands on the public host.
+    const location = `${publicOrigin(request)}/login?next=${encodeURIComponent(pathname)}`;
+    return NextResponse.redirect(location, 307);
   }
 
   return NextResponse.next();
