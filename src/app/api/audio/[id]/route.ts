@@ -44,7 +44,7 @@ export async function GET(request: Request, { params }: RouteContext) {
 
   const stat = await fs.stat(file);
   const baseHeaders: Record<string, string> = {
-    "Content-Type": contentTypeFor(path.basename(file)),
+    "Content-Type": contentTypeFor(path.basename(file), meeting.hasVideo),
     "Accept-Ranges": "bytes",
     "Cache-Control": `private, max-age=${MAX_AGE}`,
   };

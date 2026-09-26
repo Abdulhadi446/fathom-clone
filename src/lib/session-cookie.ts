@@ -5,7 +5,14 @@
 export const SESSION_COOKIE = "fathom_session";
 
 /** Paths that never require a session cookie (exact match). */
-export const PUBLIC_EXACT = ["/login", "/signup", "/api/health"];
+export const PUBLIC_EXACT = [
+  "/login",
+  "/signup",
+  "/api/health",
+  "/verify-email",
+  "/forgot-password",
+  "/reset-password",
+];
 
 /** Path prefixes that never require a session cookie. */
 export const PUBLIC_PREFIXES = ["/clip/", "/api/auth/", "/api/audio/", "/api/public/"];

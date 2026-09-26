@@ -3,7 +3,8 @@ import crypto from "node:crypto";
 import { db } from "@/db";
 import { actionItems, meetings, summaries, transcriptSegments } from "@/db/schema";
 import { withUser } from "@/lib/auth-http";
-import { removeMeetingAudio, saveMeetingAudio } from "@/lib/uploads";
+import { removeMeetingAudio, resolveAudioPath, saveMeetingAudio } from "@/lib/uploads";
+import { segmentsToTranscript, transcribeAudio, type SttResult } from "@/lib/stt";
 import {
   summarizeMeeting,
   type SummarizeResult,
@@ -16,11 +17,15 @@ export const dynamic = "force-dynamic";
 /**
  * POST /api/ingest — bring a meeting in.
  *
- * Capture is real (pasted text, an uploaded .txt/.vtt/.srt file, or a transcript
- * produced live in the browser while recording the microphone), processing is
- * real: the shared `summarizeMeeting()` runs the `standard` + `exec-brief`
- * templates and writes Meeting / TranscriptSegment / Summary / ActionItem rows
- * owned by the signed-in user.
+ * Capture is real (pasted text, an uploaded .txt/.vtt/.srt file, or a mic/screen
+ * recording from the browser), processing is real: the shared
+ * `summarizeMeeting()` runs the `standard` + `exec-brief` templates and writes
+ * Meeting / TranscriptSegment / Summary / ActionItem rows owned by the
+ * signed-in user.
+ *
+ * Audio with no pasted transcript is transcribed **on this machine** by
+ * `src/lib/stt.ts` (faster-whisper, no cloud STT) before summarizing. A pasted
+ * transcript always wins over transcription.
  *
  * Accepts JSON or multipart/form-data (multipart carries an `audio` File when
  * the meeting was recorded in the browser).
@@ -33,9 +38,14 @@ const MAX_ACTION_ITEMS = 4;
 interface IngestBody {
   title?: unknown;
   transcript?: unknown;
+  /** Live browser speech-to-text captured while recording — used only if the
+   *  server-side transcription of the same recording fails. */
+  fallback?: unknown;
   startedAt?: unknown;
   participants?: unknown;
   audio?: File;
+  /** "video" when the recording is a screen capture */
+  kind?: unknown;
 }
 
 function bad(message: string) {
@@ -91,8 +101,10 @@ async function readBody(req: Request): Promise<IngestBody | null> {
     return {
       title: form.get("title"),
       transcript: form.get("transcript"),
+      fallback: form.get("fallback"),
       startedAt: form.get("startedAt"),
       participants: form.get("participants"),
+      kind: form.get("kind"),
       audio: audio instanceof File ? audio : undefined,
     };
   }
@@ -109,12 +121,49 @@ export async function POST(req: Request) {
   const title = typeof body.title === "string" ? body.title.trim().slice(0, 200) : "";
   if (!title) return bad("Give the meeting a title.");
 
-  const raw = typeof body.transcript === "string" ? body.transcript : "";
-  if (!raw.trim()) return bad("Paste a transcript to ingest — the textarea is empty.");
+  const hasAudio = Boolean(body.audio && body.audio.size > 0);
+  let raw = typeof body.transcript === "string" ? body.transcript : "";
+  if (!raw.trim() && !hasAudio) {
+    return bad("Paste a transcript or attach a recording — there is nothing to ingest.");
+  }
   if (raw.length > MAX_CHARS) {
     return bad(
       `Transcript is too long (${raw.length.toLocaleString()} characters). Paste at most ${MAX_CHARS.toLocaleString()}.`,
     );
+  }
+
+  const meetingId = `m_${crypto.randomUUID().replace(/-/g, "").slice(0, 16)}`;
+
+  // Audio is stored before parsing so a recording can be transcribed locally.
+  const isVideo = typeof body.kind === "string" && body.kind === "video";
+  let audioPath: string | null = null;
+  if (hasAudio && body.audio) {
+    const saved = await saveMeetingAudio(meetingId, body.audio);
+    if (saved.ok) audioPath = saved.filename;
+    else return bad(saved.error);
+  }
+
+  let stt: SttResult | null = null;
+  if (!raw.trim() && audioPath) {
+    const file = resolveAudioPath(audioPath);
+    stt = file ? await transcribeAudio(file) : { ok: false, error: "stored audio file is missing" };
+    if (stt.ok) {
+      raw = segmentsToTranscript(stt.segments, user.name);
+    } else {
+      // Fall back to whatever the browser heard while recording.
+      const live = typeof body.fallback === "string" ? body.fallback.trim() : "";
+      if (live) {
+        raw = live;
+      } else {
+        await removeMeetingAudio(audioPath);
+        return NextResponse.json(
+          {
+            error: `Couldn't transcribe this recording on the server (${stt.error}). Try again, or paste a transcript instead.`,
+          },
+          { status: 422 },
+        );
+      }
+    }
   }
 
   const parsed = parseTranscript(raw);
@@ -127,15 +176,6 @@ export async function POST(req: Request) {
   const startedAt = parseStartedAt(body.startedAt);
   const durationSeconds = Math.max(30, Math.ceil(segments[segments.length - 1].endTime));
 
-  const meetingId = `m_${crypto.randomUUID().replace(/-/g, "").slice(0, 16)}`;
-
-  let audioPath: string | null = null;
-  if (body.audio && body.audio.size > 0) {
-    const saved = await saveMeetingAudio(meetingId, body.audio);
-    if (saved.ok) audioPath = saved.filename;
-    else return bad(saved.error);
-  }
-
   try {
     db.insert(meetings)
       .values({
@@ -147,6 +187,7 @@ export async function POST(req: Request) {
         source: audioPath ? "recorded" : "transcript",
         userId: user.id,
         audioPath,
+        hasVideo: isVideo,
       })
       .run();
 
@@ -227,6 +268,10 @@ export async function POST(req: Request) {
       participants: participantList,
       segmentCount: segments.length,
       usedTimestamps: parsed.transcript.usedTimestamps,
+      transcribed: stt?.ok === true,
+      transcription: stt?.ok
+        ? { engine: "local-whisper", language: stt.language, audioSeconds: stt.durationSeconds }
+        : null,
       summaries: results.map((r) => ({
         template: r.template,
         source: r.source,

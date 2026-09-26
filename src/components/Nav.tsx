@@ -13,6 +13,7 @@ const LINKS = [
 export interface NavUser {
   name: string;
   email: string;
+  emailVerified?: boolean;
 }
 
 function initialsOf(name: string, email: string) {
@@ -78,10 +79,22 @@ export default function Nav({ user }: { user: NavUser | null }) {
         <div className="ml-auto flex items-center gap-3">
           {user ? (
             <>
-              <div className="hidden text-right text-xs leading-tight sm:block">
+              {user.emailVerified === false && (
+                <Link
+                  href="/verify-email"
+                  className="rounded-full border border-amber-500/40 bg-amber-500/10 px-2.5 py-1 text-[11px] font-medium text-amber-200 hover:bg-amber-500/20"
+                >
+                  Verify email
+                </Link>
+              )}
+              <Link
+                href="/settings"
+                className="hidden text-right text-xs leading-tight transition-colors hover:text-white sm:block"
+                title="Account settings"
+              >
                 <div className="text-neutral-300">{user.name}</div>
                 <div className="text-neutral-600">{user.email}</div>
-              </div>
+              </Link>
               <div className="flex h-7 w-7 items-center justify-center rounded-full bg-teal-500/15 text-[11px] font-semibold text-teal-200 ring-1 ring-teal-400/30">
                 {initialsOf(user.name, user.email)}
               </div>

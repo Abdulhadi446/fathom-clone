@@ -1,0 +1,3 @@
+# Local speech-to-text used by /api/ingest for recorded audio.
+# Installed into /srv/fathom/stt by ops/install-stt.sh.
+faster-whisper==1.2.1

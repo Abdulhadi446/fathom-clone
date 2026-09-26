@@ -14,6 +14,7 @@ Naming: `NNN-<agent>-<phase>.md`
 | `005-agentD-stubs-ingest.md` | D | calendar stub + demo-mode ingest |
 | `006-lead-phase3-integration.md` | lead | merge, click-through, final verification |
 | `007-lead-phase4-accounts.md` | lead | real email+password accounts, seed data removed, owner-scoped data, live mic capture |
+| `008-lead-phase5-email-stt-account.md` | lead | HTTPS origin, Resend email + verification, password reset, delete account, local STT, screen recording |
 
 Each entry records: what was attempted, what changed in the repo, deploy results, and
 problems handed to the lead.

@@ -11,6 +11,7 @@ export const users = sqliteTable("User", {
   calendarConnected: integer("calendar_connected", { mode: "boolean" })
     .notNull()
     .default(false),
+  emailVerifiedAt: integer("email_verified_at", { mode: "timestamp_ms" }),
   createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
     .$defaultFn(() => new Date()),
@@ -29,6 +30,8 @@ export const meetings = sqliteTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     audioPath: text("audio_path"),
+    /** true when the stored file is a screen recording (video/webm), false for voice */
+    hasVideo: integer("has_video", { mode: "boolean" }).notNull().default(false),
   },
   (t) => [index("Meeting_started_at_idx").on(t.startedAt)],
 );
@@ -116,9 +119,31 @@ export const sessions = sqliteTable(
   (t) => [index("Session_user_idx").on(t.userId)],
 );
 
+/**
+ * Single-use tokens for email verification and password reset. Only sha256(token)
+ * is stored; the raw token only exists in the emailed link.
+ */
+export const authTokens = sqliteTable(
+  "AuthToken",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    kind: text("kind").notNull(), // "verify_email" | "reset_password"
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+    expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
+    usedAt: integer("used_at", { mode: "timestamp_ms" }),
+  },
+  (t) => [index("AuthToken_user_idx").on(t.userId)],
+);
+
 export type User = typeof users.$inferSelect;
 export type Session = typeof sessions.$inferSelect;
 export type NewSession = typeof sessions.$inferInsert;
+export type AuthToken = typeof authTokens.$inferSelect;
 export type Meeting = typeof meetings.$inferSelect;
 export type NewMeeting = typeof meetings.$inferInsert;
 export type TranscriptSegment = typeof transcriptSegments.$inferSelect;

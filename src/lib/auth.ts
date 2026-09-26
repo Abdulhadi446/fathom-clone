@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { eq, lt, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { sessions, users } from "@/db/schema";
@@ -30,6 +30,8 @@ export interface SessionUser {
   email: string;
   calendarProvider: string | null;
   calendarConnected: boolean;
+  /** true once the address has been confirmed via the emailed link */
+  emailVerified: boolean;
 }
 
 export class AuthError extends Error {
@@ -88,13 +90,14 @@ export async function createSession(userId: string): Promise<string> {
     expiresAt: new Date(now.getTime() + SESSION_TTL_MS),
   });
   const jar = await cookies();
+  const proto = (await headers()).get("x-forwarded-proto")?.split(",")[0].trim();
   jar.set(SESSION_COOKIE, token, {
     httpOnly: true,
     sameSite: "lax",
-    // Only mark Secure once the deployment actually terminates TLS: a Secure
-    // cookie is silently dropped over plain http://, which would sign everyone
-    // out on every request. Set COOKIE_SECURE=1 when HTTPS is fronting this.
-    secure: process.env.COOKIE_SECURE === "1",
+    // Secure only for requests that actually arrived over TLS: a Secure cookie
+    // is silently dropped over plain http://, which would sign the user out on
+    // the very next request. COOKIE_SECURE=1 forces it on regardless.
+    secure: proto === "https" || process.env.COOKIE_SECURE === "1",
     path: "/",
     maxAge: SESSION_TTL_MS / 1000,
   });
@@ -142,6 +145,7 @@ export async function getSessionUser(): Promise<SessionUser | null> {
     email: row.user.email,
     calendarProvider: row.user.calendarProvider,
     calendarConnected: row.user.calendarConnected,
+    emailVerified: row.user.emailVerifiedAt !== null,
   };
 }
 

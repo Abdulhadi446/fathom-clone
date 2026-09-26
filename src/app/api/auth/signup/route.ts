@@ -5,6 +5,8 @@ import { db } from "@/db";
 import { users } from "@/db/schema";
 import { createSession, hashPassword, normaliseEmail, rateLimit } from "@/lib/auth";
 import { EMAIL_RE, badRequest, clientIp, conflict, readPassword, tooMany } from "@/lib/auth-http";
+import { verifyEmailMail } from "@/lib/mailer";
+import { createAuthToken } from "@/lib/tokens";
 
 export const dynamic = "force-dynamic";
 
@@ -38,5 +40,17 @@ export async function POST(request: Request) {
   await db.insert(users).values({ id, name, email, passwordHash });
   await createSession(id);
 
-  return NextResponse.json({ user: { id, name, email } }, { status: 201 });
+  // Confirmation link — failure here must not break sign-up, but the client is
+  // told so it can offer a resend button.
+  const token = createAuthToken(id, "verify_email");
+  const mail = await verifyEmailMail(email, token);
+
+  return NextResponse.json(
+    {
+      user: { id, name, email },
+      emailSent: mail.ok,
+      mailError: mail.ok ? null : mail.error,
+    },
+    { status: 201 },
+  );
 }

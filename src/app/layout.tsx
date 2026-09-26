@@ -21,7 +21,13 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen bg-[#0a0a0b] text-neutral-200 antialiased">
-        <Nav user={user ? { name: user.name, email: user.email } : null} />
+        <Nav
+          user={
+            user
+              ? { name: user.name, email: user.email, emailVerified: user.emailVerified }
+              : null
+          }
+        />
         <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6">{children}</div>
       </body>
     </html>

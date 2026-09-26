@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS "User" (
   "password_hash" TEXT,
   "calendar_provider" TEXT,
   "calendar_connected" INTEGER NOT NULL DEFAULT 0,
+  "email_verified_at" INTEGER,
   "created_at" INTEGER NOT NULL
 );
 CREATE TABLE IF NOT EXISTS "Meeting" (
@@ -25,6 +26,7 @@ CREATE TABLE IF NOT EXISTS "Meeting" (
   "participants" TEXT NOT NULL,
   "source" TEXT NOT NULL DEFAULT 'recorded',
   "audio_path" TEXT,
+  "has_video" INTEGER NOT NULL DEFAULT 0,
   "user_id" TEXT NOT NULL REFERENCES "User"("id") ON DELETE CASCADE
 );
 CREATE INDEX IF NOT EXISTS "Meeting_started_at_idx" ON "Meeting" ("started_at");
@@ -72,13 +74,24 @@ CREATE TABLE IF NOT EXISTS "Session" (
   "expires_at" INTEGER NOT NULL
 );
 CREATE INDEX IF NOT EXISTS "Session_user_idx" ON "Session" ("user_id");
+CREATE TABLE IF NOT EXISTS "AuthToken" (
+  "id" TEXT PRIMARY KEY,
+  "user_id" TEXT NOT NULL REFERENCES "User"("id") ON DELETE CASCADE,
+  "kind" TEXT NOT NULL,
+  "created_at" INTEGER NOT NULL,
+  "expires_at" INTEGER NOT NULL,
+  "used_at" INTEGER
+);
+CREATE INDEX IF NOT EXISTS "AuthToken_user_idx" ON "AuthToken" ("user_id");
 `;
 
 // Column-level upgrades for databases created before a column existed.
 // (CREATE TABLE IF NOT EXISTS never alters an existing table.)
 const COLUMN_MIGRATIONS: { table: string; column: string; ddl: string }[] = [
   { table: "User", column: "password_hash", ddl: 'ALTER TABLE "User" ADD COLUMN "password_hash" TEXT' },
+  { table: "User", column: "email_verified_at", ddl: 'ALTER TABLE "User" ADD COLUMN "email_verified_at" INTEGER' },
   { table: "Meeting", column: "audio_path", ddl: 'ALTER TABLE "Meeting" ADD COLUMN "audio_path" TEXT' },
+  { table: "Meeting", column: "has_video", ddl: 'ALTER TABLE "Meeting" ADD COLUMN "has_video" INTEGER NOT NULL DEFAULT 0' },
 ];
 
 function migrateColumns(sqlite: InstanceType<typeof Database>): void {

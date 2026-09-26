@@ -23,8 +23,10 @@ const EXT_TYPES: Record<string, string> = {
   x: "application/octet-stream",
 };
 
-export function contentTypeFor(filename: string): string {
+export function contentTypeFor(filename: string, video = false): string {
   const ext = path.extname(filename).replace(".", "").toLowerCase();
+  if (video && (ext === "webm" || ext === "mkv")) return "video/webm";
+  if (video && ext === "mp4") return "video/mp4";
   return EXT_TYPES[ext] ?? EXT_TYPES.x;
 }
 

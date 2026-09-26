@@ -148,6 +148,7 @@ export default async function MeetingDetailPage({ params, searchParams }: PagePr
         actionItems={actionItems}
         initialTimeSeconds={initialTimeSeconds}
         hasAudio={Boolean(meeting.audioPath)}
+        hasVideo={Boolean(meeting.hasVideo)}
       />
     </main>
   );

@@ -122,6 +122,14 @@ export default function AuthForm({ mode }: Props) {
         {busy ? "Working…" : isSignup ? "Create account" : "Sign in"}
       </button>
 
+      {!isSignup && (
+        <p className="text-right text-sm">
+          <Link href="/forgot-password" className="text-neutral-500 hover:text-neutral-300">
+            Forgot password?
+          </Link>
+        </p>
+      )}
+
       <p className="text-center text-sm text-neutral-500">
         {isSignup ? (
           <>

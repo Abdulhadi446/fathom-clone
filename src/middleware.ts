@@ -10,17 +10,26 @@ import { SESSION_COOKIE, isPublicPath } from "@/lib/session-cookie";
  * A forged or stale cookie therefore gets past the redirect and is rejected
  * with a 401/404 deeper in the stack.
  */
+const LOCAL_HOST = /^(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/;
+const IP_HOST = /^\d{1,3}(\.\d{1,3}){3}(:\d+)?$/;
+
 /**
- * The origin the *browser* should be pointed at. `request.url` reports the
- * upstream address (127.0.0.1:3100 behind nginx), so prefer the headers the
- * reverse proxy sets, then the raw Host header.
+ * The origin the *browser* should be pointed at.
+ *
+ * `request.url` reports the upstream address (127.0.0.1:3100 behind nginx), so
+ * rebuild from the forwarded headers instead. Any hostname that is not
+ * localhost or a bare IP is forced to https — this box terminates TLS in front
+ * of the app (Cloudflare), and an http redirect there would drop the Secure
+ * session cookie on the next hop.
  */
 function publicOrigin(request: NextRequest): string {
-  const forwardedHost = request.headers.get("x-forwarded-host");
-  const host = forwardedHost ?? request.headers.get("host");
-  const proto = request.headers.get("x-forwarded-proto") ?? "http";
-  if (host) return `${proto}://${host}`;
-  return request.nextUrl.origin;
+  const host = request.headers.get("x-forwarded-host") ?? request.headers.get("host");
+  if (!host) return request.nextUrl.origin;
+  const hostname = host.replace(/:\d+$/, "");
+  const isLocal = LOCAL_HOST.test(host) || IP_HOST.test(host) || hostname === "localhost";
+  const forwardedProto = request.headers.get("x-forwarded-proto")?.split(",")[0].trim();
+  const scheme = isLocal ? forwardedProto || "http" : "https";
+  return `${scheme}://${host}`;
 }
 
 export function middleware(request: NextRequest) {

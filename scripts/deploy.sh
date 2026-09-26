@@ -97,6 +97,7 @@ scp -q "$TARBALL" "$HOST:/tmp/fathom-$RELEASE.tar.gz"
 
 scp -q "$ROOT/ops/fathom.service" "$HOST:/tmp/fathom.service"
 scp -q "$ROOT/ops/nginx-fathom.conf" "$HOST:/tmp/nginx-fathom.conf"
+scp -q "$ROOT/ops/stt/transcribe.py" "$HOST:/tmp/transcribe.py"
 scp -q "$ROOT/data/fathom.db" "$HOST:/tmp/fathom-upload.db"
 
 log "install + restart remote"
@@ -104,12 +105,19 @@ ssh -q "$HOST" "bash -s" <<REMOTE
 set -euo pipefail
 export PATH=/opt/node22/bin:\$PATH
 REL="$REMOTE_ROOT/releases/$RELEASE"
-mkdir -p "\$REL" "$REMOTE_ROOT/data" "$REMOTE_ROOT/data/uploads" "$REMOTE_ROOT/releases"
+mkdir -p "\$REL" "$REMOTE_ROOT/data" "$REMOTE_ROOT/data/uploads" "$REMOTE_ROOT/releases" "$REMOTE_ROOT/stt"
 rm -rf "\$REL"
 mkdir -p "\$REL"
 tar -xzf "/tmp/fathom-$RELEASE.tar.gz" -C "\$REL"
 rm -f "/tmp/fathom-$RELEASE.tar.gz"
 chmod +x "\$REL/server.js" 2>/dev/null || true
+
+# local speech-to-text helper used by /api/ingest for recorded audio
+cp /tmp/transcribe.py "$REMOTE_ROOT/stt/transcribe.py"
+rm -f /tmp/transcribe.py
+if [ ! -x "$REMOTE_ROOT/stt/bin/python" ]; then
+  echo "  WARNING: STT venv missing at $REMOTE_ROOT/stt — run ops/install-stt.sh on the server"
+fi
 
 if [ ! -f "$REMOTE_ROOT/data/fathom.db" ]; then
   echo "  no remote db yet — will upload local database"

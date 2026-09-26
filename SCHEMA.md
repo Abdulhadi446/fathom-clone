@@ -22,6 +22,7 @@ Booleans are SQLite integers 0/1 (Drizzle `mode: "boolean"`).
 | `password_hash` | TEXT | NOT NULL | `scrypt$N$r$p$saltB64$hashB64` — see `src/lib/auth.ts` |
 | `calendar_provider` | TEXT | | `"google"` \| `"outlook"` \| NULL — written by the calendar-connect stub |
 | `calendar_connected` | INTEGER (bool) | NOT NULL, default 0 | written by the calendar-connect stub |
+| `email_verified_at` | INTEGER (ms) | | NULL = address not confirmed yet (see `AuthToken` below) |
 | `created_at` | INTEGER (ms) | NOT NULL | `$defaultFn(() => new Date())` |
 
 ## Meeting
@@ -35,6 +36,7 @@ Booleans are SQLite integers 0/1 (Drizzle `mode: "boolean"`).
 | `participants` | TEXT (json) | NOT NULL | JSON array of display names, e.g. `["Priya Raman","Marcus Hale"]` |
 | `source` | TEXT | NOT NULL, default `"recorded"` | `"recorded"` (recorded in the browser, audio attached) \| `"transcript"` (pasted/uploaded transcript) |
 | `audio_path` | TEXT | | filename inside `UPLOAD_DIR`, e.g. `m_abc123.webm`; NULL = no audio |
+| `has_video` | INTEGER (bool) | NOT NULL, default 0 | 1 = screen recording, so `/api/audio/[id]` is served as `video/webm` |
 | `user_id` | TEXT | NOT NULL, FK → `User.id` ON DELETE CASCADE | owner — every read is filtered by it |
 
 ## TranscriptSegment
@@ -96,9 +98,27 @@ Rows for a meeting are always read in `start_time` order.
 | `created_at` | INTEGER (ms) | NOT NULL | |
 | `expires_at` | INTEGER (ms) | NOT NULL | 30 days out, slid forward while the user stays active |
 
-Cookie `fathom_session`: 256 random bits, `HttpOnly`, `SameSite=Lax`, `Secure` in production.
+Cookie `fathom_session`: 256 random bits, `HttpOnly`, `SameSite=Lax`, `Secure` **when the
+request that created it arrived over HTTPS** (`X-Forwarded-Proto: https`, or `COOKIE_SECURE=1`
+to force it) — a Secure cookie is silently dropped over plain http://.
 Deleting a `User` cascades to their `Session` rows and their `Meeting` rows (which cascade on to
 transcripts, summaries, action items and highlights).
+
+---
+
+## AuthToken
+
+Single-use links: email confirmation (`kind = "verify_email"`, 2-day TTL) and password reset
+(`kind = "reset_password"`, 1-hour TTL). Created by `src/lib/tokens.ts`.
+
+| column | type | constraints | notes |
+|---|---|---|---|
+| `id` | TEXT | PK | **sha256 of the link token** — the raw token only exists in the email |
+| `user_id` | TEXT | NOT NULL, FK → `User.id` ON DELETE CASCADE | indexed (`AuthToken_user_idx`) |
+| `kind` | TEXT | NOT NULL | `"verify_email"` \| `"reset_password"` |
+| `created_at` | INTEGER (ms) | NOT NULL | |
+| `expires_at` | INTEGER (ms) | NOT NULL | |
+| `used_at` | INTEGER (ms) | | NULL = still valid; set the moment the link is redeemed |
 
 ---
 
@@ -106,12 +126,16 @@ transcripts, summaries, action items and highlights).
 
 There is **no seed data** — an empty database is a correct, shippable state. The only writers:
 
-1. `POST /api/auth/signup` → `User` + `Session`
+1. `POST /api/auth/signup` → `User` + `Session` + an emailed `AuthToken`
+   (`verify_email`); `POST /api/auth/forgot-password` / `reset-password` mint and burn
+   `reset_password` tokens (a reset also deletes every `Session` for that user).
+   `DELETE /api/account` removes the user row and everything cascading from it.
 2. `POST /api/ingest` → `Meeting` + `TranscriptSegment`, then `Summary` (`standard`,
    `exec-brief`) + `ActionItem` rows through the shared `summarizeMeeting()`. Input can be
-   pasted text, an uploaded `.txt`/`.vtt`/`.srt` file, or a browser recording (live speech
-   recognition + `MediaRecorder` upload). `Meeting.source` is `recorded` when an audio file
-   was attached, otherwise `transcript`.
+   pasted text, an uploaded `.txt`/`.vtt`/`.srt` file, or a mic/screen recording. A recording
+   with no pasted transcript is transcribed **on the box** by `src/lib/stt.ts`
+   (faster-whisper, see `ops/install-stt.sh`) before summarizing. `Meeting.source` is
+   `recorded` when an audio file was attached, otherwise `transcript`.
 3. `POST /api/highlights` → `Highlight`; `PATCH /api/highlights/[id]` with
    `{isPublic: true}` mints `share_slug`
 4. `PATCH /api/meetings/[id]/action-items` → flips `ActionItem.done`

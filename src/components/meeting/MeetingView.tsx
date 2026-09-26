@@ -23,6 +23,8 @@ export interface MeetingViewProps {
   initialTimeSeconds?: number | null;
   /** True when the meeting has a real audio file behind /api/audio/[id]. */
   hasAudio?: boolean;
+  /** True when that file is a screen recording — render a <video> instead of <audio>. */
+  hasVideo?: boolean;
 }
 
 const RATES = [1, 1.25, 1.5, 2, 0.75];
@@ -56,8 +58,9 @@ export default function MeetingView({
   actionItems,
   initialTimeSeconds,
   hasAudio = false,
+  hasVideo = false,
 }: MeetingViewProps) {
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioRef = useRef<HTMLMediaElement | null>(null);
   const timeRef = useRef(0);
   const durationRef = useRef(meeting.durationSeconds);
   /** Seek issued before the audio metadata arrived — applied in onLoadedMetadata. */
@@ -319,6 +322,31 @@ export default function MeetingView({
     setRate((current) => RATES[(RATES.indexOf(current) + 1) % RATES.length]);
   };
 
+  const mediaLoaded = (event: React.SyntheticEvent<HTMLMediaElement>) => {
+    const media = event.currentTarget;
+    const meta = media.duration;
+    if (Number.isFinite(meta) && meta > 0) setDuration(meta);
+    const pending = pendingSeekRef.current;
+    if (pending !== null) {
+      try {
+        media.currentTime = pending;
+      } catch {
+        /* ignore */
+      }
+      pendingSeekRef.current = null;
+    }
+    setAudioStatus("ready");
+  };
+
+  const mediaError = () => {
+    setAudioStatus("failed");
+    setPlaying(false);
+  };
+
+  const mediaTimeUpdate = (event: React.SyntheticEvent<HTMLMediaElement>) => {
+    if (!audioFailed) setTime(event.currentTarget.currentTime);
+  };
+
   return (
     <div className="pb-16">
       {/* --- audio player ------------------------------------------------ */}
@@ -331,7 +359,7 @@ export default function MeetingView({
               }`}
             />
             <span className="truncate text-[11px] uppercase tracking-[0.14em] text-neutral-500">
-              {hasAudio ? "Recording" : "Transcript timeline"} ·{" "}
+              {hasVideo ? "Screen recording" : hasAudio ? "Recording" : "Transcript timeline"} ·{" "}
               {audioStatus === "loading" ? "loading" : playing ? "playing" : "paused"}
             </span>
           </div>
@@ -414,39 +442,39 @@ export default function MeetingView({
           </button>
         </div>
 
-        {hasAudio && (
-          <audio
-            ref={audioRef}
-            src={`/api/audio/${meeting.id}`}
-            preload="metadata"
-          onLoadedMetadata={(event) => {
-            const audio = event.currentTarget;
-            const meta = audio.duration;
-            if (Number.isFinite(meta) && meta > 0) setDuration(meta);
-            const pending = pendingSeekRef.current;
-            if (pending !== null) {
-              try {
-                audio.currentTime = pending;
-              } catch {
-                /* ignore */
-              }
-              pendingSeekRef.current = null;
-            }
-            setAudioStatus("ready");
-          }}
-          onError={() => {
-            setAudioStatus("failed");
-            setPlaying(false);
-          }}
-          onPlay={() => setPlaying(true)}
-          onPause={() => setPlaying(false)}
-          onEnded={() => setPlaying(false)}
-          onTimeUpdate={(event) => {
-            if (!audioFailed) setTime(event.currentTarget.currentTime);
-          }}
-            className="hidden"
-          />
-        )}
+        {hasAudio &&
+          (hasVideo ? (
+            <video
+              ref={(node) => {
+                audioRef.current = node;
+              }}
+              src={`/api/audio/${meeting.id}`}
+              preload="metadata"
+              playsInline
+              className="aspect-video w-full bg-black"
+              onLoadedMetadata={mediaLoaded}
+              onError={mediaError}
+              onPlay={() => setPlaying(true)}
+              onPause={() => setPlaying(false)}
+              onEnded={() => setPlaying(false)}
+              onTimeUpdate={mediaTimeUpdate}
+            />
+          ) : (
+            <audio
+              ref={(node) => {
+                audioRef.current = node;
+              }}
+              src={`/api/audio/${meeting.id}`}
+              preload="metadata"
+              className="hidden"
+              onLoadedMetadata={mediaLoaded}
+              onError={mediaError}
+              onPlay={() => setPlaying(true)}
+              onPause={() => setPlaying(false)}
+              onEnded={() => setPlaying(false)}
+              onTimeUpdate={mediaTimeUpdate}
+            />
+          ))}
       </section>
 
       {/* --- highlight tools (agent C contract) --------------------------- */}

@@ -43,7 +43,7 @@ src/
 scripts/
   new-db.ts             create/empty the local database (npm run db:reset)
   deploy.sh             build → ship → health check → rollback
-ops/                    systemd unit + nginx site
+ops/                    systemd unit, nginx site, local STT (install-stt.sh, stt/transcribe.py)
 data/fathom.db          local SQLite (gitignored)
 data/uploads/           local audio uploads (gitignored)
 .agent-logs/            agent session log — committed as we go
@@ -78,9 +78,16 @@ or you pass `--fresh-db`. Server layout:
 ```
 /srv/fathom/current      → symlink to the live release (standalone Next server, port 3100)
 /srv/fathom/data/        → persistent SQLite + uploads/ (survives deploys)
-/etc/fathom/fathom.env   → LLM_* + DATABASE_PATH + UPLOAD_DIR (secret, not in git)
-/etc/nginx/sites-enabled/fathom → reverse proxy on :80
+/srv/fathom/stt/         → python venv + faster-whisper model + transcribe.py (ops/install-stt.sh)
+/etc/fathom/fathom.env   → LLM_* + DATABASE_PATH + UPLOAD_DIR + RESEND_API_KEY + APP_URL
+                            + EMAIL_FROM + STT_* (secret, not in git)
+/etc/nginx/sites-enabled/fathom → reverse proxy on :80 (forwards X-Forwarded-Proto/Host)
 ```
+
+TLS terminates at Cloudflare in front of the box; nginx trusts the forwarded
+`X-Forwarded-Proto`/`X-Forwarded-Host` so redirects stay on `https://` and the session cookie
+can be marked `Secure`. Email needs `RESEND_API_KEY` + `APP_URL`; transcription needs
+`/srv/fathom/stt` to exist — both are checked at deploy time.
 
 ## ★ The summarization function
 
@@ -115,12 +122,32 @@ Real email+password auth, no third-party identity provider, no extra dependencie
 | gate | `src/middleware.ts` | edge middleware: paths outside the public allowlist need the cookie, otherwise → `/login` (API → 401) |
 | enforcement | `getSessionUser()` / `requireUser()` | every server page and API handler re-validates the token against the database — a forged cookie never gets past this |
 | ownership | `src/lib/queries.ts` | `getOwnedMeeting(id, userId)`, `listMeetings(userId)`, `searchAll(userId, …)` … meetings are never readable across accounts |
-| limits | `src/lib/auth.ts` `rateLimit()` | in-process counter on signup/login (10/min per IP and per email) |
+| limits | `src/lib/auth.ts` `rateLimit()` | in-process counter on credential endpoints (10/min per IP and per email/address) |
+| email | `src/lib/mailer.ts` | Resend HTTP API (`RESEND_API_KEY`), sender `EMAIL_FROM` (default: Resend's `onboarding@resend.dev`), links built from `APP_URL` |
+| tokens | `src/lib/tokens.ts` | single-use `AuthToken` rows for **email confirmation** (2 days) and **password reset** (1 hour); only `sha256(token)` is stored, and the row is burned on first use |
+| transcription | `src/lib/stt.ts` → `ops/stt/transcribe.py` | local faster-whisper (`/srv/fathom/stt`, `ops/install-stt.sh`); serialised, 10-minute timeout, no API key and no cloud STT |
+| account safety | `src/app/api/account` | `DELETE` with a password check: user row (cascades) + stored recordings + every session |
 
-**Public by design:** `/login`, `/signup`, `/api/auth/*`, `/api/health`,
-`/api/audio/[id]` (only when the meeting has a public highlight) and `/clip/<slug>`.
-Everything else needs a session; `/clip/<slug>` is the sharing surface — create a highlight,
-flip `isPublic`, hand out the link.
+**Public by design:** `/login`, `/signup`, `/verify-email`, `/forgot-password`,
+`/reset-password`, `/api/auth/*`, `/api/health`, `/api/audio/[id]` (only when the meeting has a
+public highlight) and `/clip/<slug>`. Everything else needs a session; `/clip/<slug>` is the
+sharing surface — create a highlight, flip `isPublic`, hand out the link.
+
+### Capture → transcript → summary
+
+```
+paste / .txt|.vtt|.srt upload ─┐
+mic recording   (MediaRecorder)├─► POST /api/ingest ─► parseTranscript ─┐
+screen recording (MediaRecorder)┘        │                              │
+                                         └─ no pasted text?             │
+                                              src/lib/stt.ts            │
+                                              (faster-whisper, on-box) ─┘
+                                                                        ▼
+                                       summarizeMeeting(standard + exec-brief)
+```
+
+A pasted transcript always wins over transcription; if transcription fails the browser's live
+captions are used as a last resort, otherwise the request answers `422` and nothing is stored.
 
 ## Data access
 
@@ -155,7 +182,10 @@ only inside your area, and coordinate through the lead before touching a frozen 
 | `src/components/highlights/**`, `src/components/clip/**` | **agent C** | `HighlightBar`, `ClipPlayer`, `ClipTranscript`, `CopyLinkButton` |
 | `src/app/calendar/**`, `src/app/api/calendar/**` | **agent D** | calendar-provider stub (persists to `User.calendar_*`) |
 | `src/middleware.ts`, `src/lib/session-cookie.ts`, `src/lib/auth*.ts` | **lead** | auth: sessions, gating, rate limits |
-| `src/app/api/auth/**`, `src/app/login`, `src/app/signup`, `src/components/auth/**` | **lead** | sign-up / sign-in / sign-out |
+| `src/app/api/auth/**`, `src/app/login`, `src/app/signup`, `src/components/auth/**` | **lead** | sign-up / sign-in / sign-out, verification, password reset |
+| `src/app/settings/**`, `src/app/api/account/**`, `src/components/account/**` | **lead** | change password, delete account |
+| `src/app/verify-email/**`, `src/app/forgot-password/**`, `src/app/reset-password/**` | **lead** | emailed-link landing pages |
+| `src/lib/mailer.ts`, `src/lib/tokens.ts`, `src/lib/stt.ts`, `ops/stt/**` | **lead** | email, single-use tokens, local transcription |
 | `src/app/api/audio/[id]/**`, `src/lib/uploads.ts` | **lead** | audio storage + Range serving |
 | `src/app/api/ingest/**`, `src/components/ingest/**` | **agent D** (+ lead) | paste/upload/record → `summarizeMeeting()` |
 | `src/app/ingest/**`, `src/app/api/ingest/**` | **agent D** | paste/upload → real `summarizeMeeting()` → new meeting |
