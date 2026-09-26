@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 import { cookies } from "next/headers";
-import { and, eq, lt, sql } from "drizzle-orm";
+import { eq, lt, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { sessions, users } from "@/db/schema";
 
@@ -186,25 +186,4 @@ export function countUsers() {
   return row?.n ?? 0;
 }
 
-export function userMeetingFilter(userId: string) {
-  return eq(
-    // helper kept tiny on purpose; call sites use `eq(meetings.userId, userId)`
-    // through this so the ownership rule reads the same everywhere.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ({ userId } as any),
-    userId,
-  );
-}
-
-export function ownershipClause(userId: string) {
-  return eq(meetingsUserIdColumn(), userId);
-}
-
-// Drizzle column reference, exported so scoping code reads consistently.
-import { meetings as meetingsTable } from "@/db/schema";
-function meetingsUserIdColumn() {
-  return meetingsTable.userId;
-}
-
 export const isAuthError = (err: unknown): err is AuthError => err instanceof AuthError;
-export { and };
