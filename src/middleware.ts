@@ -19,11 +19,12 @@ export function middleware(request: NextRequest) {
     if (pathname.startsWith("/api/")) {
       return NextResponse.json({ error: "Sign in required" }, { status: 401 });
     }
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    url.search = "";
-    url.searchParams.set("next", pathname);
-    return NextResponse.redirect(url);
+    // Relative Location: behind nginx the request host is 127.0.0.1:3100, and
+    // an absolute redirect would send the browser there instead of the public URL.
+    return new NextResponse(null, {
+      status: 307,
+      headers: { Location: `/login?next=${encodeURIComponent(pathname)}` },
+    });
   }
 
   return NextResponse.next();

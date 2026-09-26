@@ -197,8 +197,6 @@ else
   echo "  WARNING: public health check failed for $PUBLIC_URL" >&2
   exit 1
 fi
-MEETINGS_JSON="$(curl -fsS --max-time 10 "${PUBLIC_URL}api/meetings" || true)"
-echo "${MEETINGS_JSON:0:300}"
-echo
+curl -fsS --max-time 10 "${PUBLIC_URL}login" >/dev/null && echo "  public login page OK"
 echo "DEPLOYED  $RELEASE"
 echo "LOG       $LOG_FILE"

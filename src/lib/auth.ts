@@ -91,7 +91,10 @@ export async function createSession(userId: string): Promise<string> {
   jar.set(SESSION_COOKIE, token, {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    // Only mark Secure once the deployment actually terminates TLS: a Secure
+    // cookie is silently dropped over plain http://, which would sign everyone
+    // out on every request. Set COOKIE_SECURE=1 when HTTPS is fronting this.
+    secure: process.env.COOKIE_SECURE === "1",
     path: "/",
     maxAge: SESSION_TTL_MS / 1000,
   });

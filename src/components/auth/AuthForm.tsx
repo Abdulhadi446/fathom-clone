@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 interface Props {
@@ -15,6 +15,10 @@ interface Props {
  */
 export default function AuthForm({ mode }: Props) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  // `?next=` comes from the middleware redirect — only accept same-site paths.
+  const rawNext = searchParams.get("next");
+  const nextPath = rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/";
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -39,7 +43,7 @@ export default function AuthForm({ mode }: Props) {
         setBusy(false);
         return;
       }
-      router.replace("/");
+      router.replace(nextPath);
       router.refresh();
     } catch {
       setError("Network error — check your connection.");
