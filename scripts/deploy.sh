@@ -101,7 +101,7 @@ ssh -q "$HOST" "bash -s" <<REMOTE
 set -euo pipefail
 export PATH=/opt/node22/bin:\$PATH
 REL="$REMOTE_ROOT/releases/$RELEASE"
-mkdir -p "\$REL" "$REMOTE_ROOT/data" "$REMOTE_ROOT/releases"
+mkdir -p "\$REL" "$REMOTE_ROOT/data" "$REMOTE_ROOT/data/uploads" "$REMOTE_ROOT/releases"
 rm -rf "\$REL"
 mkdir -p "\$REL"
 tar -xzf "/tmp/fathom-$RELEASE.tar.gz" -C "\$REL"
@@ -117,9 +117,9 @@ fi
 
 # systemd unit
 sudo cp /tmp/fathom.service /etc/systemd/system/fathom.service
-# nginx site
+# nginx site (always refresh — the config is part of the release)
+sudo cp /tmp/nginx-fathom.conf /etc/nginx/sites-available/fathom
 if [ ! -e /etc/nginx/sites-enabled/fathom ]; then
-  sudo cp /tmp/nginx-fathom.conf /etc/nginx/sites-available/fathom
   sudo ln -sf /etc/nginx/sites-available/fathom /etc/nginx/sites-enabled/fathom
 fi
 sudo nginx -t >/dev/null

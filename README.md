@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Fathom — AI meeting notetaker
 
-## Getting Started
+Self-hosted meeting notes with **real accounts**: sign up, record or import a meeting, and get
+LLM summaries, action items, transcript search, highlights and shareable public clip links.
 
-First, run the development server:
+**Live:** http://51.170.90.41/ · **Repo:** https://github.com/Abdulhadi446/fathom-clone
+
+## What it does
+
+- **Accounts** — email + password (scrypt-hashed), server-side sessions in an `HttpOnly`
+  cookie, every row scoped to the account that created it.
+- **Capture** — `/ingest` accepts pasted text, a `.txt`/`.vtt`/`.srt` upload, or a live
+  microphone recording (browser speech recognition + `MediaRecorder` audio upload).
+- **Processing** — one shared `summarizeMeeting()` produces Markdown summaries (6 templates)
+  and action items through any OpenAI-compatible endpoint.
+- **Review** — transcript player synced to audio (or a transcript-only clock when no audio is
+  attached), summary tabs, action-item toggles, keyboard deep links (`?t=`, `?template=`).
+- **Sharing** — select a range in a meeting, save a highlight, flip it public and send
+  `/clip/<slug>`: no login needed to watch it.
+- **Search** — titles, transcript text and summaries, debounced, with hits deep-linking to the
+  exact second.
+- **Calendar** — provider connect is an honest **stub** (no OAuth credentials in this
+  environment); the connection flag persists on your account.
+
+## Run locally
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # set LLM_API_KEY (optional — there is a deterministic fallback)
+npm run db:reset             # create an empty ./data/fathom.db
+npm run dev                  # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open the app, create an account at `/signup`, then add your first meeting at `/ingest`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deploy
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+./scripts/deploy.sh              # typecheck → build → local smoke test → ship → health check
+./scripts/deploy.sh --fresh-db   # also overwrite the live database with the local one
+```
 
-## Learn More
+Flock-protected, keeps the previous release and rolls back automatically. Production layout:
+nginx :80 → systemd `fathom` (port 3100) → `/srv/fathom/current`, SQLite and audio uploads in
+`srv/fathom/data/`.
 
-To learn more about Next.js, take a look at the following resources:
+## Docs
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `SCHEMA.md` — tables, constraints, how data enters the system
+- `ARCHITECTURE.md` — stack, auth, deploy, route ownership map
+- `.agent-logs/` — session-by-session build log

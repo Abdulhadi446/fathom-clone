@@ -1,7 +1,9 @@
 # ARCHITECTURE
 
-A Fathom-style AI meeting notetaker: seeded meetings → transcripts → LLM summaries/templates →
-action items → playback sync → highlights → public clip sharing → search → demo-mode ingest.
+A Fathom-style AI meeting notetaker with **real accounts**: sign up → record or import a
+meeting → LLM summaries/templates → action items → playback sync → highlights → public clip
+sharing → search. There is no seed data and no demo user: every row belongs to the account
+that created it.
 
 **Live URL:** `http://51.170.90.41/`
 **Repo:** public GitHub repo created from this directory (see `.agent-logs/` for the session trail).
@@ -23,24 +25,27 @@ action items → playback sync → highlights → public clip sharing → search
 src/
   app/                  routes (App Router) — see ownership map below
     api/                foundation-owned HTTP endpoints
+    middleware.ts        route gate (edge) — cookie presence check
   db/
-    schema.ts           Drizzle schema  (FROZEN)
-    index.ts            connection + DDL (FROZEN)
+    schema.ts           Drizzle schema (lead-owned)
+    index.ts            connection + DDL + column migrations (lead-owned)
   lib/
     llm.ts              low-level chat client (chat, chatJSON, parseJsonLoose)
     summarize.ts        ★ THE summarization function (shared)
-    transcript.ts       LLM transcript authoring for seed data
-    queries.ts          shared read helpers (list/get/search)
+    auth.ts             scrypt hashing, sessions, requireUser, rate limits
+    auth-http.ts        JSON error helpers + withUser() for API routes
+    session-cookie.ts   cookie name + public-path rules (edge-safe)
+    uploads.ts          audio storage (UPLOAD_DIR) + path resolution
+    queries.ts          shared read helpers — all scoped to a userId
     format.ts           shared formatting helpers
     load-env.ts         .env loader for scripts
   types/                ambient d.ts
 scripts/
-  seed.ts               seed script (transcript + summary generation + cache)
+  new-db.ts             create/empty the local database (npm run db:reset)
   deploy.sh             build → ship → health check → rollback
 ops/                    systemd unit + nginx site
-seed-cache/             committed LLM outputs so seeding is reproducible
-public/audio/           committed silent audio tracks (one per meeting)
 data/fathom.db          local SQLite (gitignored)
+data/uploads/           local audio uploads (gitignored)
 .agent-logs/            agent session log — committed as we go
 ```
 
@@ -49,18 +54,21 @@ data/fathom.db          local SQLite (gitignored)
 ```bash
 npm install
 cp .env.example .env.local      # add LLM_API_KEY for real summaries (optional)
-npm run seed                    # builds the DB from seed-cache/ + LLM
+npm run db:reset                # create an empty ./data/fathom.db (schema only)
 npm run dev                     # http://localhost:3000
 ```
 
-Without `LLM_API_KEY` the seed still works — `summarizeMeeting()` falls back to a
-deterministic summarizer so no screen is ever empty.
+Open `http://localhost:3000` → you are redirected to `/login` → create the first account at
+`/signup`. There is nothing to seed: the dashboard is empty until you add a meeting.
+
+Without `LLM_API_KEY` ingest still works — `summarizeMeeting()` falls back to a deterministic
+summarizer so no screen is ever empty.
 
 ## Deploy
 
 ```bash
 ./scripts/deploy.sh              # typecheck → build → local smoke test → ship → remote health check
-./scripts/deploy.sh --fresh-db   # also overwrite the live DB with the local seed DB
+./scripts/deploy.sh --fresh-db   # also overwrite the live DB with the local one
 ```
 
 The script is **safe to run concurrently** (flock), keeps the previous release for
@@ -69,8 +77,8 @@ or you pass `--fresh-db`. Server layout:
 
 ```
 /srv/fathom/current      → symlink to the live release (standalone Next server, port 3100)
-/srv/fathom/data/        → persistent SQLite (survives deploys)
-/etc/fathom/fathom.env   → LLM_* + DATABASE_PATH (secret, not in git)
+/srv/fathom/data/        → persistent SQLite + uploads/ (survives deploys)
+/etc/fathom/fathom.env   → LLM_* + DATABASE_PATH + UPLOAD_DIR (secret, not in git)
 /etc/nginx/sites-enabled/fathom → reverse proxy on :80
 ```
 
@@ -96,12 +104,32 @@ const result = await summarizeMeeting(
 - In the browser/server boundary: only import this from **server** code (route handlers,
   server components, scripts).
 
+## Auth & access control
+
+Real email+password auth, no third-party identity provider, no extra dependencies:
+
+| piece | file | what it does |
+|---|---|---|
+| password | `src/lib/auth.ts` | `crypto.scrypt` (N=16384, r=8, p=1) with a per-user salt, stored as `scrypt$N$r$p$salt$hash`; compared with `timingSafeEqual` |
+| session | `src/lib/auth.ts` | 256-bit random token in an `HttpOnly` cookie; only `sha256(token)` is stored in `Session`; 30-day expiry, slid on activity |
+| gate | `src/middleware.ts` | edge middleware: paths outside the public allowlist need the cookie, otherwise → `/login` (API → 401) |
+| enforcement | `getSessionUser()` / `requireUser()` | every server page and API handler re-validates the token against the database — a forged cookie never gets past this |
+| ownership | `src/lib/queries.ts` | `getOwnedMeeting(id, userId)`, `listMeetings(userId)`, `searchAll(userId, …)` … meetings are never readable across accounts |
+| limits | `src/lib/auth.ts` `rateLimit()` | in-process counter on signup/login (10/min per IP and per email) |
+
+**Public by design:** `/login`, `/signup`, `/api/auth/*`, `/api/health`,
+`/api/audio/[id]` (only when the meeting has a public highlight) and `/clip/<slug>`.
+Everything else needs a session; `/clip/<slug>` is the sharing surface — create a highlight,
+flip `isPublic`, hand out the link.
+
 ## Data access
 
-`src/lib/queries.ts` gives every agent the same reads: `listMeetingsWithSnippet()`,
-`getMeeting`, `getSegments`, `getSummaries`, `getActionItems`, `getHighlights`,
-`getHighlightBySlug`, `searchAll(query)`. Need something else? Add a **new** file under
-`src/lib/` rather than editing shared ones mid-flight.
+`src/lib/queries.ts` gives every caller the same reads — **all of them take a `userId`**:
+`listMeetings(userId)`, `getOwnedMeeting(id, userId)`, `listMeetingsWithSnippet(userId)`,
+`searchAll(userId, query)`, `getDashboardStats(userId)`, plus the meeting-scoped reads
+(`getSegments`, `getSummaries`, `getActionItems`, `getHighlights`) that you may only call
+after an ownership check. `getMeeting(id)` and `getHighlightBySlug(slug)` are the two
+unscoped reads, reserved for the public clip path.
 
 ---
 
@@ -118,7 +146,7 @@ only inside your area, and coordinate through the lead before touching a frozen 
 | `src/app/api/health`, `src/app/api/meetings` | foundation | `GET /api/meetings` supports `?q=` + `?limit=` |
 | `src/app/layout.tsx`, `src/components/Nav.tsx`, `src/app/globals.css` | **foundation (frozen)** | the app shell every page renders inside |
 | `src/components/highlights/HighlightBar.tsx` | **agent C** (contract set by lead) | A renders it in `/meetings/[id]` passing `{meetingId, durationSeconds, currentTime, selection, onSeek?}` |
-| `scripts/deploy.sh`, `ops/*`, `scripts/seed.ts` | foundation | everyone runs them, nobody edits them mid-run |
+| `scripts/deploy.sh`, `ops/*`, `scripts/new-db.ts` | foundation | everyone runs them, nobody edits them mid-run |
 | `src/app/page.tsx`, `src/app/meetings/page.tsx`, `src/app/search/**`, `src/app/api/search/**` | **agent B** | dashboard, meetings table, cross-meeting search |
 | `src/components/dashboard/**` | **agent B** | `MeetingTable`, `MeetingRow`, `SearchBox`, `SearchResults`, `StatsStrip`, `HighlightMatch`, `hits.ts` |
 | `src/app/meetings/[id]/**`, `src/app/api/meetings/[id]/**` | **agent A** | transcript player, summary tabs, action items (`PATCH …/action-items`) |
@@ -126,6 +154,10 @@ only inside your area, and coordinate through the lead before touching a frozen 
 | `src/app/clip/[slug]/**`, `src/app/api/highlights/**` | **agent C** | highlight capture, share toggle, public clip page |
 | `src/components/highlights/**`, `src/components/clip/**` | **agent C** | `HighlightBar`, `ClipPlayer`, `ClipTranscript`, `CopyLinkButton` |
 | `src/app/calendar/**`, `src/app/api/calendar/**` | **agent D** | calendar-provider stub (persists to `User.calendar_*`) |
+| `src/middleware.ts`, `src/lib/session-cookie.ts`, `src/lib/auth*.ts` | **lead** | auth: sessions, gating, rate limits |
+| `src/app/api/auth/**`, `src/app/login`, `src/app/signup`, `src/components/auth/**` | **lead** | sign-up / sign-in / sign-out |
+| `src/app/api/audio/[id]/**`, `src/lib/uploads.ts` | **lead** | audio storage + Range serving |
+| `src/app/api/ingest/**`, `src/components/ingest/**` | **agent D** (+ lead) | paste/upload/record → `summarizeMeeting()` |
 | `src/app/ingest/**`, `src/app/api/ingest/**` | **agent D** | paste/upload → real `summarizeMeeting()` → new meeting |
 | `src/components/calendar/**`, `src/components/ingest/**` | **agent D** | `CalendarConnect`, `ProviderMark`, `IngestForm`, `sample.ts` |
 
@@ -146,7 +178,7 @@ Shared UI conventions: dark, dense, neutral palette (Tailwind 4, no UI library).
 ## Parallel build (Phase 2 — complete, kept for reference)
 
 > **Status: done.** All four branches (`agent-a`…`agent-d`) were merged into `master`,
-> rebuilt, re-seeded and deployed. The worktrees below are historical — new work happens
+> rebuilt and deployed. The worktrees below are historical — new work happens
 > in the main checkout on `master`.
 
 Four agents worked at the same time. Each one had an isolated **git worktree** on its own
@@ -163,7 +195,7 @@ branch so nobody's edits collided:
   /home/abdulhadi/Projects/project/node_modules node_modules`) — a symlink breaks the
   standalone build. **Do not add npm dependencies**
   (the registry here is extremely slow); if you think you need one, ask the lead.
-- Each worktree has its own `data/fathom.db` (`npm run seed` takes ~2 s from `seed-cache/`).
+- Each worktree had its own `data/fathom.db` (`npm run db:reset` created it; there is no seed data).
 - Commit **only your own files** (`git add <paths>`, never `git add -A`), push your branch
   incrementally (`git push -u origin agent-<x>`), and append to `.agent-logs/`.
 - `./scripts/deploy.sh` is flock-protected: builds + deploys from *your* worktree, smoke

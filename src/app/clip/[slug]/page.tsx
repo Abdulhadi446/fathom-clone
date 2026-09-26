@@ -119,7 +119,8 @@ export default async function ClipPage({ params }: PageProps) {
       </header>
 
       <ClipPlayer
-        audioSrc={`/audio/${meeting.id}.m4a`}
+        audioSrc={`/api/audio/${meeting.id}`}
+        hasAudio={Boolean(meeting.audioPath)}
         startTime={highlight.startTime}
         endTime={highlight.endTime}
         durationSeconds={meeting.durationSeconds}

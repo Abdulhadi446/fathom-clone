@@ -27,9 +27,17 @@ export interface ClipPlayerProps {
   startTime: number;
   endTime: number;
   durationSeconds: number;
+  /** False when the meeting has no stored audio — the clip then runs on its own clock. */
+  hasAudio?: boolean;
 }
 
-export default function ClipPlayer({ audioSrc, startTime, endTime, durationSeconds }: ClipPlayerProps) {
+export default function ClipPlayer({
+  audioSrc,
+  startTime,
+  endTime,
+  durationSeconds,
+  hasAudio = true,
+}: ClipPlayerProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const initializedRef = useRef(false);
   const autoplayedRef = useRef(false);
@@ -257,10 +265,18 @@ export default function ClipPlayer({ audioSrc, startTime, endTime, durationSecon
       </div>
 
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-neutral-800/80 px-4 py-2 text-[11px] text-neutral-500">
-        <span className="rounded border border-neutral-700 px-1.5 py-0.5 uppercase tracking-wide text-neutral-500">
-          simulated recording
-        </span>
-        <span>silent audio stand-in — the playhead and every seek are real</span>
+        {hasAudio ? (
+          <span className="rounded border border-neutral-700 px-1.5 py-0.5 uppercase tracking-wide text-neutral-500">
+            recorded audio
+          </span>
+        ) : (
+          <>
+            <span className="rounded border border-neutral-700 px-1.5 py-0.5 uppercase tracking-wide text-neutral-500">
+              transcript clip
+            </span>
+            <span>no audio attached — the playhead and every seek still work</span>
+          </>
+        )}
         {muted && (
           <button
             type="button"
@@ -285,7 +301,8 @@ export default function ClipPlayer({ audioSrc, startTime, endTime, durationSecon
             autoplay was blocked — press play
           </span>
         )}
-        {loadError && <span className="text-red-400">audio could not be loaded</span>}
+        {loadError && !hasAudio && <span>audio not attached to this meeting</span>}
+        {loadError && hasAudio && <span className="text-red-400">audio could not be loaded</span>}
       </div>
 
       <audio ref={audioRef} src={audioSrc} preload="metadata" className="hidden" />

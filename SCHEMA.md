@@ -1,9 +1,12 @@
 # SCHEMA
 
 SQLite (via Drizzle ORM + better-sqlite3). Connection: `DATABASE_PATH` (default `./data/fathom.db`).
-DDL lives in `src/db/index.ts`, the type-safe schema in `src/db/schema.ts` (**frozen** — see ARCHITECTURE.md).
+DDL lives in `src/db/index.ts` (plus a small `migrateColumns()` pass for columns added after a
+table first existed); the type-safe schema in `src/db/schema.ts` is owned by the lead — see
+ARCHITECTURE.md.
 
-All ids are strings (prefixed, deterministic for seed data: `m_*`, `seg_*`, `sum_*`, `act_*`, `hl_*`).
+All ids are strings, prefixed by kind: `u_*` (users), `m_*` (meetings), `seg_*`, `sum_*`,
+`act_*`, `hl_*` (highlights); `Session.id` is sha256-hex of the cookie token.
 `*_at` columns are integer epoch-milliseconds (Drizzle `mode: "timestamp_ms"` → JS `Date`).
 Booleans are SQLite integers 0/1 (Drizzle `mode: "boolean"`).
 
@@ -15,7 +18,8 @@ Booleans are SQLite integers 0/1 (Drizzle `mode: "boolean"`).
 |---|---|---|---|
 | `id` | TEXT | PK | |
 | `name` | TEXT | NOT NULL | |
-| `email` | TEXT | NOT NULL | UNIQUE |
+| `email` | TEXT | NOT NULL | UNIQUE — stored lower-cased |
+| `password_hash` | TEXT | NOT NULL | `scrypt$N$r$p$saltB64$hashB64` — see `src/lib/auth.ts` |
 | `calendar_provider` | TEXT | | `"google"` \| `"outlook"` \| NULL — written by the calendar-connect stub |
 | `calendar_connected` | INTEGER (bool) | NOT NULL, default 0 | written by the calendar-connect stub |
 | `created_at` | INTEGER (ms) | NOT NULL | `$defaultFn(() => new Date())` |
@@ -29,8 +33,9 @@ Booleans are SQLite integers 0/1 (Drizzle `mode: "boolean"`).
 | `started_at` | INTEGER (ms) | NOT NULL | indexed (`Meeting_started_at_idx`) |
 | `duration_seconds` | INTEGER | NOT NULL | |
 | `participants` | TEXT (json) | NOT NULL | JSON array of display names, e.g. `["Priya Raman","Marcus Hale"]` |
-| `source` | TEXT | NOT NULL, default `"recorded"` | `"recorded"` (seed) \| `"demo"` (demo-mode ingest) |
-| `user_id` | TEXT | FK → `User.id`, ON DELETE SET NULL | |
+| `source` | TEXT | NOT NULL, default `"recorded"` | `"recorded"` (recorded in the browser, audio attached) \| `"transcript"` (pasted/uploaded transcript) |
+| `audio_path` | TEXT | | filename inside `UPLOAD_DIR`, e.g. `m_abc123.webm`; NULL = no audio |
+| `user_id` | TEXT | NOT NULL, FK → `User.id` ON DELETE CASCADE | owner — every read is filtered by it |
 
 ## TranscriptSegment
 
@@ -82,27 +87,40 @@ Rows for a meeting are always read in `start_time` order.
 
 ---
 
-## Seed data (`npm run seed`)
+## Session
 
-8 meetings, 1162 transcript segments, 22 summaries (6 templates), 32 action items, 13 highlights.
-The 8-participant, 60-minute **Q3 Product Council — Roadmap Lock** carries 278 transcript segments.
-Public highlights already exist: `acme-crm-pain`, `q4-roadmap-lock`, `northwind-sso-gate` —
-each one sits on real transcript lines (3–7 inside the range), no silent gaps between
-segments (the generator's windows are re-filled before insert).
+| column | type | constraints | notes |
+|---|---|---|---|
+| `id` | TEXT | PK | **sha256 of the cookie token** — the raw token never touches the database |
+| `user_id` | TEXT | NOT NULL, FK → `User.id` ON DELETE CASCADE | indexed (`Session_user_idx`) |
+| `created_at` | INTEGER (ms) | NOT NULL | |
+| `expires_at` | INTEGER (ms) | NOT NULL | 30 days out, slid forward while the user stays active |
 
-`npm run seed` only ever touches these 8 rows; meetings created through `/api/ingest`
-carry `source = "demo"` and survive a re-seed (a `deploy.sh --fresh-db` replaces the whole
-database and drops them). The live instance currently holds one such meeting.
+Cookie `fathom_session`: 256 random bits, `HttpOnly`, `SameSite=Lax`, `Secure` in production.
+Deleting a `User` cascades to their `Session` rows and their `Meeting` rows (which cascade on to
+transcripts, summaries, action items and highlights).
 
-Generated artifacts committed to the repo so seeding is reproducible without an LLM key:
+---
 
-- `seed-cache/<meetingId>.json` — LLM-generated transcript + summaries (regenerated when the prompt version changes or with `npm run seed:refresh`)
-- `public/audio/<meetingId>.m4a` — **silent** AAC audio matching each meeting's duration (the capture layer is stubbed; the player's clock is real)
+## How data enters the system
 
-Commands:
+There is **no seed data** — an empty database is a correct, shippable state. The only writers:
+
+1. `POST /api/auth/signup` → `User` + `Session`
+2. `POST /api/ingest` → `Meeting` + `TranscriptSegment`, then `Summary` (`standard`,
+   `exec-brief`) + `ActionItem` rows through the shared `summarizeMeeting()`. Input can be
+   pasted text, an uploaded `.txt`/`.vtt`/`.srt` file, or a browser recording (live speech
+   recognition + `MediaRecorder` upload). `Meeting.source` is `recorded` when an audio file
+   was attached, otherwise `transcript`.
+3. `POST /api/highlights` → `Highlight`; `PATCH /api/highlights/[id]` with
+   `{isPublic: true}` mints `share_slug`
+4. `PATCH /api/meetings/[id]/action-items` → flips `ActionItem.done`
+5. `POST /api/calendar` → `User.calendar_provider` / `calendar_connected` (stub)
+
+Audio blobs go to `UPLOAD_DIR` (`./data/uploads` locally, `/srv/fathom/data/uploads` in
+production) as `<meetingId>.<ext>` and are served by `GET /api/audio/[id]` with HTTP Range.
 
 ```bash
-npm run seed          # idempotent: upserts the 8 seeded meetings, never touches other rows
-npm run seed:refresh  # ignores the transcript/summary cache and re-asks the LLM
-npm run db:reset      # wipes every table, then seeds
+npm run db:reset            # apply the schema to ./data/fathom.db (creates it if missing)
+npm run db:reset -- --empty # delete the file first — start from nothing
 ```
