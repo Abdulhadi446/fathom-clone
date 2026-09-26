@@ -73,6 +73,14 @@ for _ in $(seq 1 40); do
   fi
   sleep 0.5
 done
+# the sign-in page must answer too (app routes are behind auth now) — check while
+# the smoke server is still up
+if [ "$SMOKE_OK" = "1" ]; then
+  if ! curl -fsS --max-time 3 "http://127.0.0.1:$SMOKE_PORT/login" >/dev/null 2>&1; then
+    echo "login page did not answer" >&2
+    SMOKE_OK=0
+  fi
+fi
 kill "$SMOKE_PID" 2>/dev/null || true
 wait "$SMOKE_PID" 2>/dev/null || true
 if [ "$SMOKE_OK" != "1" ]; then
@@ -80,12 +88,7 @@ if [ "$SMOKE_OK" != "1" ]; then
   tail -40 "$STAGE/smoke.log" >&2
   exit 1
 fi
-echo "  health OK"
-if ! curl -fsS --max-time 3 "http://127.0.0.1:$SMOKE_PORT/login" >/dev/null; then
-  echo "login page did not answer" >&2
-  exit 1
-fi
-echo "  login page OK"
+echo "  health + login OK"
 
 log "ship $RELEASE to $HOST"
 TARBALL="/tmp/fathom-$RELEASE.tar.gz"
