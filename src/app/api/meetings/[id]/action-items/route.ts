@@ -16,6 +16,40 @@ interface PatchBody {
 }
 
 /**
+ * GET /api/meetings/[id]/action-items — the meeting's items for its owner.
+ * 404 for anyone else, so the id space never leaks across accounts.
+ */
+export async function GET(_request: Request, { params }: RouteContext) {
+  const user = await withUser();
+  if (user instanceof NextResponse) return user;
+
+  const { id: meetingId } = await params;
+  if (!meetingId) {
+    return NextResponse.json({ error: "meeting id is required" }, { status: 400 });
+  }
+  if (!getOwnedMeeting(meetingId, user.id)) {
+    return NextResponse.json({ error: "meeting not found" }, { status: 404 });
+  }
+
+  const rows = db
+    .select({
+      id: actionItems.id,
+      text: actionItems.text,
+      done: actionItems.done,
+      sortOrder: actionItems.sortOrder,
+    })
+    .from(actionItems)
+    .where(eq(actionItems.meetingId, meetingId))
+    .all();
+
+  return NextResponse.json({
+    items: rows,
+    doneCount: rows.filter((row) => row.done).length,
+    totalCount: rows.length,
+  });
+}
+
+/**
  * PATCH /api/meetings/[id]/action-items
  * Owner: agent A (meeting detail).
  *

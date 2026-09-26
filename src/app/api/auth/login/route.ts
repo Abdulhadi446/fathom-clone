@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { createSession, findUserByEmail, rateLimit, verifyPassword } from "@/lib/auth";
+import { createSession, findUserByEmail, purgeExpiredSessions, rateLimit, verifyPassword } from "@/lib/auth";
 import { badRequest, clientIp, tooMany, unauthorised } from "@/lib/auth-http";
+import { purgeExpiredAuthTokens } from "@/lib/tokens";
 
 export const dynamic = "force-dynamic";
 
@@ -28,5 +29,8 @@ export async function POST(request: Request) {
   if (!user || !ok) return unauthorised("Email or password is incorrect.");
 
   await createSession(user.id);
+  // opportunistic housekeeping — one indexed DELETE each, only on real logins
+  purgeExpiredSessions();
+  purgeExpiredAuthTokens();
   return NextResponse.json({ user: { id: user.id, name: user.name, email: user.email } });
 }

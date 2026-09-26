@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, isNull, lt } from "drizzle-orm";
 import { db } from "@/db";
 import { authTokens } from "@/db/schema";
 
@@ -44,6 +44,11 @@ export function consumeAuthToken(token: string | null | undefined, kind: TokenKi
   if (row.expiresAt.getTime() <= Date.now()) return null;
   db.update(authTokens).set({ usedAt: new Date() }).where(eq(authTokens.id, row.id)).run();
   return row.userId;
+}
+
+/** Housekeeping: drop expired tokens so the table cannot grow forever. */
+export function purgeExpiredAuthTokens() {
+  db.delete(authTokens).where(lt(authTokens.expiresAt, new Date())).run();
 }
 
 /** Drop any outstanding tokens of a kind for a user (used after a successful reset). */

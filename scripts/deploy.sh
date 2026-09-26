@@ -3,6 +3,7 @@
 # Build + deploy the Fathom clone to the VM.
 #
 #   ./scripts/deploy.sh              build, ship, restart, health check
+#   ./scripts/deploy.sh --smoke      also run the full black-box suite afterwards
 #   ./scripts/deploy.sh --fresh-db   also upload the local SQLite DB (OVERWRITES live data)
 #
 # Safe for concurrent use: an flock serialises deploys, a local smoke test runs
@@ -14,10 +15,12 @@ set -euo pipefail
 HOST="${DEPLOY_HOST:-tests2}"
 REMOTE_ROOT="${REMOTE_ROOT:-/srv/fathom}"
 APP_PORT="${APP_PORT:-3100}"
-PUBLIC_URL="${PUBLIC_URL:-http://51.170.90.41/}"
+PUBLIC_URL="${PUBLIC_URL:-https://tests.thetrillioniar.me/}"
 FRESH_DB=0
+SMOKE=0
 for arg in "$@"; do
   [ "$arg" = "--fresh-db" ] && FRESH_DB=1
+  [ "$arg" = "--smoke" ] && SMOKE=1
 done
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -98,6 +101,7 @@ scp -q "$TARBALL" "$HOST:/tmp/fathom-$RELEASE.tar.gz"
 scp -q "$ROOT/ops/fathom.service" "$HOST:/tmp/fathom.service"
 scp -q "$ROOT/ops/nginx-fathom.conf" "$HOST:/tmp/nginx-fathom.conf"
 scp -q "$ROOT/ops/stt/transcribe.py" "$HOST:/tmp/transcribe.py"
+scp -q "$ROOT/ops/backup.sh" "$HOST:/tmp/backup.sh"
 scp -q "$ROOT/data/fathom.db" "$HOST:/tmp/fathom-upload.db"
 
 log "install + restart remote"
@@ -115,6 +119,14 @@ chmod +x "\$REL/server.js" 2>/dev/null || true
 # local speech-to-text helper used by /api/ingest for recorded audio
 cp /tmp/transcribe.py "$REMOTE_ROOT/stt/transcribe.py"
 rm -f /tmp/transcribe.py
+
+# nightly database + uploads backup (03:17 UTC, keeps 7 days)
+mkdir -p "$REMOTE_ROOT/ops" "$REMOTE_ROOT/backups"
+cp /tmp/backup.sh "$REMOTE_ROOT/ops/backup.sh"
+chmod +x "$REMOTE_ROOT/ops/backup.sh"
+rm -f /tmp/backup.sh
+echo "17 3 * * * ubuntu $REMOTE_ROOT/ops/backup.sh >> /var/log/fathom-backup.log 2>&1" | sudo tee /etc/cron.d/fathom-backup >/dev/null
+sudo chmod 644 /etc/cron.d/fathom-backup
 if [ ! -x "$REMOTE_ROOT/stt/bin/python" ]; then
   echo "  WARNING: STT venv missing at $REMOTE_ROOT/stt — run ops/install-stt.sh on the server"
 fi
@@ -208,3 +220,8 @@ fi
 curl -fsS --max-time 10 "${PUBLIC_URL}login" >/dev/null && echo "  public login page OK"
 echo "DEPLOYED  $RELEASE"
 echo "LOG       $LOG_FILE"
+
+if [ "$SMOKE" = "1" ]; then
+  log "smoke suite against $PUBLIC_URL"
+  SMOKE_BASE="$PUBLIC_URL" "$ROOT/scripts/smoke.sh" "$PUBLIC_URL"
+fi

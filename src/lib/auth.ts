@@ -156,8 +156,9 @@ export async function requireUser(): Promise<SessionUser> {
   return user;
 }
 
+/** Housekeeping: run opportunistically (cheap indexed delete, no cron needed). */
 export function purgeExpiredSessions() {
-  db.delete(sessions).where(lt(sessions.expiresAt, sql`CURRENT_TIMESTAMP`));
+  db.delete(sessions).where(lt(sessions.expiresAt, new Date())).run();
 }
 
 // ---------------------------------------------------------------------------

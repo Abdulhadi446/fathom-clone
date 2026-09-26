@@ -1,6 +1,8 @@
 [Unit]
 Description=Fathom clone (Next.js standalone)
 After=network.target
+StartLimitIntervalSec=120
+StartLimitBurst=5
 
 [Service]
 Type=simple
@@ -10,11 +12,27 @@ EnvironmentFile=-/etc/fathom/fathom.env
 Environment=NODE_ENV=production
 Environment=PORT=3100
 Environment=HOSTNAME=127.0.0.1
+# keep everything the process touches (incl. the whisper model cache) under /srv
+Environment=HOME=/srv/fathom/stt
+Environment=HF_HOME=/srv/fathom/stt/hf-cache
 ExecStart=/opt/node22/bin/node server.js
 Restart=always
 RestartSec=3
+TimeoutStopSec=20
 StandardOutput=journal
 StandardError=journal
+
+# Hardening: the app only writes under /srv/fathom and /tmp, and the
+# whisper model cache lives under /srv/fathom/stt (HF_HOME above).
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
 
 [Install]
 WantedBy=multi-user.target
