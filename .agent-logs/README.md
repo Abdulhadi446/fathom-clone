@@ -13,6 +13,7 @@ Naming: `NNN-<agent>-<phase>.md`
 | `004-agentC-sharing-highlights.md` | C | highlights + public `/clip/[slug]` |
 | `005-agentD-stubs-ingest.md` | D | calendar stub + demo-mode ingest |
 | `006-lead-phase3-integration.md` | lead | merge, click-through, final verification |
+| `007-lead-phase4-accounts.md` | lead | real email+password accounts, seed data removed, owner-scoped data, live mic capture |
 
 Each entry records: what was attempted, what changed in the repo, deploy results, and
 problems handed to the lead.

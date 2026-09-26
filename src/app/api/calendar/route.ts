@@ -11,8 +11,8 @@ export const dynamic = "force-dynamic";
  * POST /api/calendar — calendar-connect STUB (agent D).
  *
  * INTENTIONALLY STUBBED: there is no real OAuth here, no provider is contacted
- * and no tokens are stored. The only real effect is two columns on the demo
- * user row (`User.calendar_provider`, `User.calendar_connected`), exactly as
+ * and no tokens are stored. The only real effect is two columns on the caller's
+ * own account (`User.calendar_provider`, `User.calendar_connected`), exactly as
  * SCHEMA.md describes. The multi-second "handshake" is simulated client-side.
  *
  * Owner: agent D.
