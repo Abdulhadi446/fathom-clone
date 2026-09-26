@@ -86,7 +86,13 @@ Rows for a meeting are always read in `start_time` order.
 
 8 meetings, 1162 transcript segments, 22 summaries (6 templates), 32 action items, 13 highlights.
 The 8-participant, 60-minute **Q3 Product Council — Roadmap Lock** carries 278 transcript segments.
-Public highlights already exist: `acme-crm-pain`, `q4-roadmap-lock`, `northwind-sso-gate`.
+Public highlights already exist: `acme-crm-pain`, `q4-roadmap-lock`, `northwind-sso-gate` —
+each one sits on real transcript lines (3–7 inside the range), no silent gaps between
+segments (the generator's windows are re-filled before insert).
+
+`npm run seed` only ever touches these 8 rows; meetings created through `/api/ingest`
+carry `source = "demo"` and survive a re-seed (a `deploy.sh --fresh-db` replaces the whole
+database and drops them). The live instance currently holds one such meeting.
 
 Generated artifacts committed to the repo so seeding is reproducible without an LLM key:
 
