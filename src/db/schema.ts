@@ -1,11 +1,12 @@
 import { sqliteTable, text, integer, real, index, uniqueIndex } from "drizzle-orm/sqlite-core";
 
-// SQLite schema — mirrors SCHEMA.md. FROZEN: subagents must not change this file.
+// SQLite schema — mirrors SCHEMA.md. Owned by the lead; changes go through SCHEMA.md first.
 
 export const users = sqliteTable("User", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
+  passwordHash: text("password_hash").notNull(),
   calendarProvider: text("calendar_provider"),
   calendarConnected: integer("calendar_connected", { mode: "boolean" })
     .notNull()
@@ -24,7 +25,10 @@ export const meetings = sqliteTable(
     durationSeconds: integer("duration_seconds").notNull(),
     participants: text("participants", { mode: "json" }).$type<string[]>().notNull(),
     source: text("source").notNull().default("recorded"),
-    userId: text("user_id").references(() => users.id, { onDelete: "set null" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    audioPath: text("audio_path"),
   },
   (t) => [index("Meeting_started_at_idx").on(t.startedAt)],
 );
@@ -96,7 +100,25 @@ export const highlights = sqliteTable(
   (t) => [index("Highlight_meeting_idx").on(t.meetingId)],
 );
 
+export const sessions = sqliteTable(
+  "Session",
+  {
+    // PK is sha256(session token) — the raw token only ever lives in the cookie.
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+    expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
+  },
+  (t) => [index("Session_user_idx").on(t.userId)],
+);
+
 export type User = typeof users.$inferSelect;
+export type Session = typeof sessions.$inferSelect;
+export type NewSession = typeof sessions.$inferInsert;
 export type Meeting = typeof meetings.$inferSelect;
 export type NewMeeting = typeof meetings.$inferInsert;
 export type TranscriptSegment = typeof transcriptSegments.$inferSelect;
